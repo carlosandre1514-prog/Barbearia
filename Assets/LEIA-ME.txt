@@ -1,0 +1,8 @@
+BANNER DA TELA INICIAL
+
+Coloque aqui um arquivo chamado banner.jpg (ou seja, assets/banner.jpg).
+Quando ele existir, o site mostra essa imagem no lugar do texto "Seu horário, sem fila".
+
+- Tamanho sugerido: 1200 x 480 px (formato largo).
+- Escreva o texto direto na imagem. Ela aparece inteira, sem cortes.
+- Mantenha o nome exatamente: banner.jpg (letras minúsculas).
