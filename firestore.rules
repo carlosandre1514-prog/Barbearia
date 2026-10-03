@@ -1,0 +1,65 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function myDoc() { return /databases/$(database)/documents/users/$(request.auth.uid); }
+    function isAdmin() { return signedIn() && exists(myDoc()) && get(myDoc()).data.role == 'admin'; }
+    function ownsShop(shopId) { return signedIn() && exists(myDoc()) && get(myDoc()).data.role == 'dono' && get(myDoc()).data.shopId == shopId; }
+
+    // Perfis: cada pessoa lê o próprio; só o admin muda papéis.
+    match /users/{uid} {
+      allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
+      allow create: if signedIn() && request.auth.uid == uid
+        && request.resource.data.role == 'cliente'
+        && request.resource.data.keys().hasOnly(['nome','email','tel','role']);
+      allow update: if signedIn() && request.auth.uid == uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['nome','tel']);
+      allow write: if isAdmin();
+    }
+
+    // Estados ativos
+    match /config/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Empresas: públicas para leitura
+    match /shops/{shopId} {
+      allow read: if true;
+      allow create, delete: if isAdmin();
+      allow update: if isAdmin()
+        || (ownsShop(shopId) && !request.resource.data.diff(resource.data).affectedKeys()
+              .hasAny(['ownerUid','ownerEmail','ownerNome','av']))
+        // avaliação: qualquer pessoa logada soma uma nota de 1 a 5
+        || (signedIn() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['av'])
+              && request.resource.data.av[1] == resource.data.av[1] + 1
+              && request.resource.data.av[0] >= resource.data.av[0] + 1
+              && request.resource.data.av[0] <= resource.data.av[0] + 5);
+    }
+
+    // Horários ocupados (confirmados): todos leem, para mostrar na agenda
+    match /busy/{id} {
+      allow read: if true;
+      allow create, update: if isAdmin() || ownsShop(request.resource.data.shopId);
+      allow delete: if isAdmin() || ownsShop(resource.data.shopId)
+        || (signedIn() && resource.data.u == request.auth.uid);
+    }
+
+    // Agendamentos: só o cliente, a empresa e o admin enxergam
+    match /ag/{id} {
+      allow read: if signedIn() && (resource.data.u == request.auth.uid
+        || ownsShop(resource.data.shopId) || isAdmin());
+      allow create: if signedIn() && request.resource.data.u == request.auth.uid
+        && request.resource.data.st == 'pendente'
+        && exists(/databases/$(database)/documents/shops/$(request.resource.data.shopId));
+      allow update: if isAdmin() || ownsShop(resource.data.shopId)
+        || (signedIn() && resource.data.u == request.auth.uid && (
+             (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['st'])
+                && request.resource.data.st == 'cancelado')
+          || (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['avl'])
+                && request.resource.data.avl == true && resource.data.st == 'confirmado')));
+      allow delete: if isAdmin();
+    }
+  }
+}
