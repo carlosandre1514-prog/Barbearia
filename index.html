@@ -101,7 +101,7 @@ const dk=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+Strin
 const add=n=>{const d=new Date();d.setDate(d.getDate()+n);return d};
 const PG=["Dinheiro","Pix","Débito","Crédito"],DS=["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"],TIPOS=["Barbearia","Salão","Manicure","Maquiagem","Estúdio"];
 const wd=k=>{const p=k.split("-");return new Date(+p[0],p[1]-1,+p[2]).getDay()};
-const DEMO=location.protocol==="file:"||/^(localhost|127\.0\.0\.1)$/.test(location.hostname);let seq=Date.now(),IP=null,BZ=[],AG=[];const T=dk(add(0)),T2=dk(add(2));
+let seq=Date.now(),IP=null,BZ=[],AG=[];const T=dk(add(0)),T2=dk(add(2));
 const DB={est:{SP:true,RJ:true,MG:false},cid:{SP:["São Paulo","Campinas"],RJ:["Rio de Janeiro"],MG:["Belo Horizonte"]},shops:[],hero:null};
 const S={role:"cliente",pro:null,op:null,tab:"in",wk:0,owk:0,tp:"",tmp:null,v:"home",uf:"",cid:"",q:"",shop:null,B:{d:null,h:null,s:null},user:null,own:null,adm:false,od:T,ot:"agenda",at:"shops",ret:null,err:""};
 const sh=id=>DB.shops.find(s=>s.id===id),me=()=>sh(S.own);
@@ -142,7 +142,7 @@ function vHome(){const ufs=Object.keys(DB.est).filter(u=>DB.est[u]);
  <div class="cats">${TIPOS.map(t=>`<button data-a="tp" data-t="${t}" class="${S.tp===t?"on":""}">${svg(t)}${t}</button>`).join("")}</div>
  <div class="f"><select data-s="uf" aria-label="Estado"><option value="">Estado</option>${ufs.map(u=>`<option ${u===S.uf?"selected":""}>${u}</option>`).join("")}</select>
  <select data-s="cid" aria-label="Cidade"><option value="">Cidade</option>${(DB.cid[S.uf]||[]).map(c=>`<option ${c===S.cid?"selected":""}>${E(c)}</option>`).join("")}</select></div>
- <input data-s="q" placeholder="Buscar pelo nome" value="${E(S.q)}"><h2>${S.tp||"Em destaque"}</h2><div class="gr">${L.map(card).join("")||'<p class="em">Nenhum local encontrado nesse filtro.</p>'}</div><p style="text-align:center;margin-top:26px">${IP?'<button class="bt s m" data-a="install">Instalar app</button> ':""}${DEMO?'<button class="bt s m" data-a="role" data-r="mapa">Mapa de navegação (protótipo)</button>':""}</p>`}
+ <input data-s="q" placeholder="Buscar pelo nome" value="${E(S.q)}"><h2>${S.tp||"Em destaque"}</h2><div class="gr">${L.map(card).join("")||'<p class="em">Nenhum local encontrado nesse filtro.</p>'}</div><p style="text-align:center;margin-top:26px"></p>`}
 function vShop(){const s=sh(S.shop),G=s.gal||[],rv=s.rv||[];
  return`<button class="bt s m" data-a="v" data-v="home" style="margin-top:14px">← Voltar</button>${cover(s,190)}<div class="id">${av(s,64)}<div><h1>${E(s.n)}</h1><p class="mu">${E(s.tp)} · ${E(s.end)}, ${E(s.cd)}/${s.uf}</p></div></div>
  <div class="stat"><div><b style="color:#fff">★ ${nota(s)}</b><span class="mu">${s.av[1]} avaliações</span></div><div><b>${s.sv.length}</b><span class="mu">serviços</span></div><div><b>${s.pr.length}</b><span class="mu">profissionais</span></div></div>
@@ -193,9 +193,9 @@ function vOwner(){if(!S.own)return loginBox("Área da empresa","Acesso criado pe
   <div class="cd"><b>Novo profissional</b><label>Nome<input id="pn2" maxlength="30"></label><label>Foto (opcional)<input type="file" accept="image/*" data-f="pf"></label><div class="er">${E(S.err)}</div><button class="bt" data-a="addpro">Adicionar profissional</button></div>`}
  if(S.ot==="sv")b=`<h2>Serviços e valores</h2>${s.sv.map((x,i)=>`<div class="cd rw">${thumb(s,x,i)}<div style="flex:1;min-width:0"><b>${E(x.n)}</b><div class="mu">${x.m} min · ${R(x.p)}</div></div><button class="bt d m" data-a="delsv" data-id="${x.id}">Remover</button></div>`).join("")||'<p class="mu">Nenhum serviço ainda.</p>'}
   <div class="cd"><b>Novo serviço</b><label>Nome<input id="sn"></label><div class="f"><label>Valor (R$)<input id="sp" inputmode="decimal"></label><label>Duração (min)<input id="sm" inputmode="numeric"></label></div><label>Foto do serviço (opcional)<input type="file" accept="image/*" data-f="sv"></label><div class="er">${E(S.err)}</div><button class="bt" data-a="addsv">Adicionar serviço</button></div>`;
- if(S.ot==="hr"){const lk=location.href.split("#")[0].split("?")[0]+"?e="+s.id;
+ if(S.ot==="hr"){const lk=shopLink(s);
   b=`<h2>Formas de pagamento aceitas</h2><p class="mu">O cliente paga no local, na hora do atendimento. Marque o que você aceita.</p><div class="sw">${PG.map(m=>`<button data-a="pg" data-m="${m}" class="${(s.pg||[]).includes(m)?"on":""}">${m}</button>`).join("")}</div><h2>Banner e foto de perfil</h2>${cover(s,120)}${av(s,68)}<label>Banner do estabelecimento (foto sua ou imagem baixada)<input type="file" accept="image/*" data-f="capa"></label><label>Foto de perfil (logo)<input type="file" accept="image/*" data-f="logo"></label><label>Adicionar à galeria (${(s.gal||[]).length} fotos)<input type="file" accept="image/*" data-f="gal"></label>
-  <h2>Link e QR Code</h2><p class="mu">Divulgue na bio do Instagram ou imprima o QR Code para o balcão.</p><label>Link da sua página<input id="lk" readonly value="${E(lk)}"></label><button class="bt s" data-a="cplk">Copiar link</button><div id="qr"></div>`;
+  <h2>Link e QR Code</h2><p class="mu">Divulgue na bio do Instagram ou imprima o QR Code para o balcão.</p><label>Link da sua página<input id="lk" readonly value="${E(lk)}"></label><button class="bt s" data-a="cplk">Copiar link</button><div id="qr"></div><button class="bt" data-a="cartaz">Baixar cartaz com QR Code</button>`;
   setTimeout(()=>{try{const q=$("#qr");if(q&&window.QRCode){q.innerHTML="";new QRCode(q,{text:lk,width:180,height:180,correctLevel:QRCode.CorrectLevel.L})}else if(q)q.innerHTML='<p class="mu">QR Code indisponível agora. Use o link acima.</p>'}catch(e){}},50)}
  if(S.ot==="res"){const M=T.slice(0,7),C=s.ag.filter(a=>a.st==="confirmado"&&a.d.startsWith(M)),f=C.reduce((t,a)=>t+a.p,0),c={};C.forEach(a=>c[a.sv]=(c[a.sv]||0)+1);const top=Object.keys(c).sort((a,b)=>c[b]-c[a])[0];
   const dy=[0,1,2,3,4,5,6].map(i=>{const k=dk(add(i));return[DS[add(i).getDay()],s.ag.filter(a=>a.d===k&&a.st==="confirmado").reduce((t,a)=>t+a.p,0)]}),mx=Math.max(1,...dy.map(x=>x[1]));b=`<h2>Resumo do mês</h2><div class="kp"><div class="cd"><b>${C.length}</b><span class="mu">atendimentos</span></div><div class="cd"><b>${R(f)}</b><span class="mu">faturamento</span></div><div class="cd"><b>${s.ag.filter(a=>a.st==="pendente").length}</b><span class="mu">pedidos pendentes</span></div><div class="cd"><b>★ ${nota(s)}</b><span class="mu">${top?"mais pedido: "+E(top):"sem dados"}</span></div></div><h2>Próximos 7 dias</h2><div class="bars">${dy.map(x=>`<div><i style="height:${Math.round(x[1]/mx*92)}px"></i>${x[0]}</div>`).join("")}</div><p class="mu">Faturamento dos horários já confirmados.</p>`}
@@ -208,31 +208,22 @@ function vAdmin(){if(!S.adm)return loginBox("Administrador","Você cria o perfil
  if(S.at==="ufs")return`<h1>Estados ativos</h1>${tabs}<p class="mu">Só os estados marcados aparecem no filtro do cliente.</p>${Object.keys(DB.est).map(u=>`<div class="cd rw"><b>${u}</b><button class="bt m ${DB.est[u]?"g":"s"}" data-a="uf" data-u="${u}">${DB.est[u]?"Ativo":"Inativo"}</button></div>`).join("")}`;
  const tot=DB.shops.reduce((t,s)=>t+s.ag.length,0);
  return`<h1>Painel do administrador</h1>${tabs}<div class="kp" style="margin-top:12px"><div class="cd"><b>${DB.shops.length}</b><span class="mu">empresas</span></div><div class="cd"><b>${tot}</b><span class="mu">agendamentos</span></div></div>
- <h2>Empresas e logins</h2>${DB.shops.map(s=>`<div class="cd rw" style="align-items:flex-start">${thumb(s,{img:s.logo||s.capa},0)}<div style="flex:1;min-width:0"><div class="rw"><b>${E(s.n)}</b><span class="tag pd">${E(s.tp)}</span></div><div class="mu">${E(s.cd)}/${s.uf} · responsável: ${E(s.dono.nome)} (${E(s.dono.email)})</div><div class="fl"><button data-a="pw" data-id="${s.id}">Redefinir senha</button><button data-a="rm" data-id="${s.id}">Excluir</button></div></div></div>`).join("")}
+ <h2>Empresas e logins</h2>${DB.shops.map(s=>`<div class="cd rw" style="align-items:flex-start">${thumb(s,{img:s.logo||s.capa},0)}<div style="flex:1;min-width:0"><div class="rw"><b>${E(s.n)}</b><span class="tag pd">${E(s.tp)}</span></div><div class="mu">${E(s.cd)}/${s.uf} · responsável: ${E(s.dono.nome)} (${E(s.dono.email)})</div><div class="fl"><button data-a="cpl" data-id="${s.id}">Copiar link</button><button data-a="cartaz" data-id="${s.id}">QR Code</button><button data-a="pw" data-id="${s.id}">Redefinir senha</button><button data-a="rm" data-id="${s.id}">Excluir</button></div></div></div>`).join("")}
  <div class="cd"><b>Nova empresa</b><label>Nome do negócio<input id="cn"></label><label>Endereço<input id="ce"></label>
  <div class="f"><label>Estado<select id="cu">${Object.keys(DB.est).map(u=>`<option>${u}</option>`).join("")}</select></label><label>Cidade<input id="cc"></label></div>
  <label>Tipo<select id="ct">${TIPOS.map(t=>`<option>${t}</option>`).join("")}</select></label>
  <label>Nome do responsável<input id="dn"></label><label>E-mail de acesso<input id="de" type="email"></label><label>Senha inicial<input id="dp"></label><div class="er">${E(S.err)}</div><button class="bt" data-a="mk">Criar empresa e login</button></div>`}
 
 /* ===== MAPA DE NAVEGAÇÃO ===== */
-function vMapa(){const ch=(l,r,v)=>`<button data-a="jump" data-r="${r}" data-v="${v}">${l}</button>`,ar='<span>→</span>';
- const row=(t,a)=>`<h2>${t}</h2><div class="fl">${a.join(ar)}</div>`;
- return`<button class="bt s m" data-a="role" data-r="cliente" style="margin-top:14px">← Voltar ao site</button><h1>Mapa de navegação</h1><p class="mu">Toque em uma tela para abrir. Quem faz cada coisa e em qual ordem.</p>
- ${row("Cliente",[ch("Início","cliente","home"),ch("Local","cliente","shop"),ch("Serviço","cliente","shop"),ch("Profissional","cliente","shop"),ch("Dia e horário","cliente","shop"),ch("Dados","cliente","shop"),ch("Login*","cliente","login"),ch("Pendente","cliente","mine")])}
- <p class="mu">*Login só é exigido ao solicitar o agendamento.</p>
- ${row("Empresa",[ch("Login único","cliente","login"),ch("Botão Minha empresa","dono","o"),ch("Agenda","dono","o"),ch("Equipe e horários","dono","o"),ch("Serviços","dono","o"),ch("Perfil e pagamento","dono","o"),ch("Resumo","dono","o")])}
- ${row("Administrador",[ch("Login único","cliente","login"),ch("Botão ADM","admin","a"),ch("Empresas","admin","a"),ch("Criar login","admin","a"),ch("Estados","admin","a")])}
- <h2>Regras da agenda</h2><div class="cd mu" style="line-height:1.7">1. Cliente escolhe o serviço na página da empresa, depois o profissional, depois o dia e o horário, depois confirma os dados.<br>2. O pedido nasce <b>pendente</b> e não bloqueia a agenda.<br>3. Ao <b>confirmar</b>, o intervalo (início + duração em min) fica ocupado em tempo real.<br>4. Pedidos pendentes que começam dentro do horário confirmado são recusados na hora.<br>5. Nenhum serviço é bloqueado pela duração: o cliente escolhe qualquer horário livre e a empresa decide ao confirmar.<br>6. Admin cria e redefine o acesso da empresa; a empresa não troca a senha.<br>7. O pagamento é no local, na hora. Cada empresa marca no Perfil quais formas aceita (dinheiro, Pix, débito, crédito) e o cliente escolhe uma ao agendar.<br>8. Existe um único login. O sistema reconhece o e-mail: o administrador vê o botão ADM, a empresa vê Minha empresa e o cliente comum não vê nenhum botão extra. Sem login, nada disso aparece.<br>9. Cada profissional tem os próprios horários, folgas e agenda. O cliente escolhe o profissional antes de ver os horários.</div>`}
-
 /* ===== RENDER ===== */
 function R_(){autosave();let r=S.role;
  if((r==="dono"&&!S.own)||(r==="admin"&&!S.adm)){S.role=r="cliente";S.v=S.user?"home":"login";S.tab="in"}
  const bt=(l,x,on)=>`<button ${x} class="${on?"on":""}">${l}</button>`;
- $("#roles").innerHTML=S.user?(S.adm?bt("ADM",'data-a="role" data-r="admin"',r==="admin"):"")+(S.own?bt("Minha empresa",'data-a="role" data-r="dono"',r==="dono"):"")+(r==="dono"||r==="admin"||r==="mapa"?bt("Site",'data-a="role" data-r="cliente"'):"")+bt("Sair",'data-a="logout"'):bt("Entrar",'data-a="v" data-v="login"');
+ $("#roles").innerHTML=S.user?(S.adm?bt("ADM",'data-a="role" data-r="admin"',r==="admin"):"")+(S.own?bt("Minha empresa",'data-a="role" data-r="dono"',r==="dono"):"")+(r==="dono"||r==="admin"?bt("Site",'data-a="role" data-r="cliente"'):"")+bt("Sair",'data-a="logout"'):bt("Entrar",'data-a="v" data-v="login"');
  let h="",n="";
  if(r==="cliente"){h={home:vHome,shop:vShop,book:vBook,mine:vMine,login:vLogin}[S.v]();
   n=[["home","Início"],["mine","Agendamentos"]].map(x=>`<button data-a="v" data-v="${x[0]}" class="${S.v===x[0]||(x[0]==="home"&&(S.v==="shop"||S.v==="book"))?"on":""}">${x[1]}</button>`).join("")}
- if(r==="dono")h=S.own&&!me()?'<p class="em">Carregando…</p>':vOwner();if(r==="admin")h=vAdmin();if(r==="mapa")h=vMapa();
+ if(r==="dono")h=S.own&&!me()?'<p class="em">Carregando…</p>':vOwner();if(r==="admin")h=vAdmin();
  $("#app").className="wrap"+(r==="cliente"&&S.v==="home"?" wide":"");$("#app").innerHTML=h;$("#nav").innerHTML=n?`<div>${n}</div>`:"";$("#nav").style.display=n?"block":"none"}
 const go=f=>{S.err="";f&&f();R_()};
 const nx=id=>setTimeout(()=>{const e=$("#"+id);if(e&&e.scrollIntoView)e.scrollIntoView({behavior:"smooth",block:"start"})},60);
@@ -276,6 +267,13 @@ const mkShop=async g=>{const id=Date.now(),em=g.de.toLowerCase(),nm=g.dn||"Respo
  const pr={id:id+1,n:nm,abre:"09:00",almI:"12:00",almF:"13:00",fecha:"18:00",dias:[1,2,3,4,5,6],folgas:[]};
  const sp={id,n:g.n,end:g.ce,uf:g.u,cd:g.c,tp:g.t,abre:"09:00",almI:"12:00",almF:"13:00",fecha:"18:00",dias:[1,2,3,4,5,6],pr:[pr],pg:["Dinheiro","Pix"],av:[0,0],sv:[],ownerUid:uid,ownerEmail:em,ownerNome:nm};
  try{await setDoc(doc(db,"users",uid),{nome:nm,email:em,role:"dono",shopId:String(id)});await setDoc(doc(db,"shops",String(id)),JSON.parse(JSON.stringify(sp)));if(!(DB.cid[g.u]||[]).includes(g.c)){(DB.cid[g.u]=DB.cid[g.u]||[]).push(g.c);saveGeo()}S.err="";tip("Empresa criada. Peça para ela enviar banner, logo e fotos da equipe.")}catch(e){S.err="O login foi criado, mas a empresa não foi salva. Confira as regras do Firestore."}R_()};
+const shopLink=s=>location.origin+location.pathname+"?e="+s.id;
+const qrData=(t,cb)=>{const d=document.createElement("div");new QRCode(d,{text:t,width:512,height:512,correctLevel:QRCode.CorrectLevel.M});setTimeout(()=>{const c=d.querySelector("canvas");cb(c?c.toDataURL("image/png"):d.querySelector("img").src)},80)};
+const cartaz=s=>{if(!s)return;if(!window.QRCode)return tip("QR Code indisponível agora. Tente de novo com internet.");
+ qrData(shopLink(s),u=>{const i=new Image();i.onload=()=>{const c=document.createElement("canvas");c.width=1000;c.height=1400;const x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,1000,1400);x.fillStyle="#0a0a0a";x.fillRect(0,0,1000,170);
+  x.fillStyle="#fff";x.textAlign="center";x.font="800 56px Archivo,Arial,sans-serif";x.fillText("AGENDE PELO CELULAR",500,108,900);x.drawImage(i,150,260,700,700);
+  x.fillStyle="#0a0a0a";x.font="800 66px Archivo,Arial,sans-serif";x.fillText(s.n.toUpperCase(),500,1090,900);x.fillStyle="#555";x.font="500 40px Archivo,Arial,sans-serif";x.fillText("Aponte a câmera e escolha seu horário",500,1170,900);
+  const a=document.createElement("a");a.href=c.toDataURL("image/png");a.download="qr-"+s.n.toLowerCase().normalize("NFD").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")+".png";document.body.appendChild(a);a.click();a.remove();tip("QR Code baixado")};i.src=u})};
 const hit=(sv,a)=>sv.ag.find(x=>x.id===+a);
 document.addEventListener("click",e=>{const t=e.target.closest("[data-a]");if(!t)return;const d=t.dataset,a=d.a;
  if(a==="role")return go(()=>{S.role=d.r});
@@ -327,6 +325,8 @@ document.addEventListener("click",e=>{const t=e.target.closest("[data-a]");if(!t
  if(a==="addfolga"){const v=$("#fd").value;return go(()=>{const p=me().pr.find(z=>z.id===S.pro);if(v&&!p.folgas.includes(v)){p.folgas.push(v);tip("Folga marcada")}})}
  if(a==="delfolga")return go(()=>{const p=me().pr.find(z=>z.id===S.pro);p.folgas=p.folgas.filter(x=>x!==d.d)});
  if(a==="install"){if(IP){IP.prompt();IP=null}return R_()}
+ if(a==="cartaz"){cartaz(d.id?sh(+d.id):me());return}
+ if(a==="cpl"){const t=shopLink(sh(+d.id));try{navigator.clipboard.writeText(t)}catch(x){}tip("Link copiado: "+t);return}
  if(a==="cplk"){const i=$("#lk");i.select();try{navigator.clipboard.writeText(i.value)}catch(x){document.execCommand("copy")}tip("Link copiado");return}
  if(a==="alogin"){doLogin("alogin",$("#ae").value.trim().toLowerCase(),$("#as").value.trim());return}
  if(a==="at")return go(()=>{S.at=d.t});
@@ -336,7 +336,7 @@ document.addEventListener("click",e=>{const t=e.target.closest("[data-a]");if(!t
  if(a==="mk"){const g=i=>$("#"+i).value.trim(),n=g("cn"),u=$("#cu").value,c=g("cc");if(!n||!c||!g("de")||!g("dp"))return go(()=>{S.err="Preencha nome, cidade, e-mail e senha inicial."});
   if(g("dp").length<6)return go(()=>{S.err="A senha inicial precisa de 6 ou mais caracteres."});
   mkShop({n,u,c,t:$("#ct").value,ce:g("ce"),de:g("de"),dp:g("dp"),dn:g("dn")});return}
- if(a==="jump")return go(()=>{S.role=d.r;if(d.r==="cliente")S.v=d.v==="book"?"shop":d.v;if(d.r==="cliente"&&!S.shop)S.shop=1})});
+});
 document.addEventListener("change",e=>{const t=e.target,k=t.dataset.s,h=t.dataset.h,f=t.dataset.f;
  if(f&&t.files&&t.files[0]){shrink(t.files[0],u=>{const s=me();if(f==="sv"){S.tmp=u;tip("Foto pronta. Toque em Adicionar serviço.")}if(f==="pf"){S.tmp=u;tip("Foto pronta. Toque em Adicionar profissional.")}if(f==="pfe"){s.pr.find(z=>z.id===S.pro).foto=u;go()}if(f==="capa"){s.capa=u;go()}if(f==="logo"){s.logo=u;go()}if(f==="hero"){DB.hero=u;saveGeo();go()}if(f==="gal"){(s.gal=s.gal||[]).push(u);go()}});return}
  if(k){S[k]=t.value;if(k==="uf")S.cid="";R_();return}
