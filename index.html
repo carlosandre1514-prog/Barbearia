@@ -101,6 +101,30 @@ h2[id]{scroll-margin-top:120px}
 .home h2{margin:20px 0 12px}
 @media(min-width:720px){#app:has(>.home){max-width:1100px}.home .gr{grid-template-columns:repeat(2,1fr)}.home .gr>.cd{border-right:1px solid var(--bd)}}
 @media(min-width:1024px){.home .gr{grid-template-columns:repeat(3,1fr)}}
+/* ===== Arredondado ===== */
+.cd{border-radius:22px}
+.bt,.bt.m{border-radius:999px}
+input,select,input[type=file]{border-radius:18px}
+.av{border-radius:50%!important}
+.th{border-radius:16px}.th.pf{border-radius:50%}
+.cv{border-radius:22px}
+.tag,#t{border-radius:999px}
+.wk button{border-radius:16px}
+.sl button,.sw button,.fl button,.seg button{border-radius:999px}
+.gal div{border-radius:16px}.rv i{border-radius:50%}.bnr img{border-radius:14px}.bars i{border-radius:8px 8px 0 0}
+.home .cats{margin:16px 0 0;gap:6px;border:0}
+.home .cats button{border:0;border-radius:0;background:none;min-height:0;padding:0;gap:7px;font-size:10.5px;color:var(--tx)}
+.home .cats svg{box-sizing:content-box;width:24px;height:24px;padding:16px;border-radius:50%;border:1px solid var(--bd);background:var(--cd);transition:background .2s,border-color .2s}
+.home .cats button.on{background:none;color:var(--b)}
+.home .cats button.on svg{background:var(--b);border-color:var(--b);color:var(--ink)}
+.home .f{margin:16px 0 0;gap:10px}
+.home .f select,.home>input{border:1px solid var(--bd);border-radius:999px;padding:14px 20px;margin:0}
+.home .f select+select{border-left:1px solid var(--bd)}
+.home>input{width:100%;margin:10px 0 0}
+.home .gr{margin:0;gap:16px}
+.home .gr>.cd{border:1px solid var(--bd);border-radius:24px;margin:0}
+.home .cd .cv{border-radius:0}
+@media(min-width:720px){.home .gr>.cd{border-right:1px solid var(--bd)}}
 </style></head><body>
 <div class="pole"></div>
 <div class="top"><div class="wrap"><div class="brand" data-a="v" data-v="home"><b>HORI<i>X</i></b><span>Agendamento online</span></div>
@@ -121,7 +145,7 @@ const PG=["Dinheiro","Pix","Débito","Crédito"],DS=["Dom","Seg","Ter","Qua","Qu
 const wd=k=>{const p=k.split("-");return new Date(+p[0],p[1]-1,+p[2]).getDay()};
 let seq=Date.now(),IP=null,BZ=[],AG=[];const T=dk(add(0)),T2=dk(add(2));
 const UFS=["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"],CIDX={};
-const DB={est:Object.fromEntries(UFS.map(u=>[u,u==="SP"||u==="RJ"])),cid:{SP:["São Paulo","Campinas"],RJ:["Rio de Janeiro"],MG:["Belo Horizonte"]},shops:[],banners:[]};
+const DB={est:Object.fromEntries(UFS.map(u=>[u,u==="SP"||u==="RJ"])),cid:{SP:["São Paulo","Campinas"],RJ:["Rio de Janeiro"],MG:["Belo Horizonte"]},shops:[],banners:[],zap:"88993546992"};
 const S={role:"cliente",pro:null,op:null,tab:"in",wk:0,owk:0,tp:"",tmp:null,v:"home",uf:"",cid:"",q:"",shop:null,B:{d:null,h:null,s:null},user:null,own:null,adm:false,od:T,ot:"agenda",at:"shops",ret:null,err:""};
 const sh=id=>DB.shops.find(s=>s.id===id),me=()=>sh(S.own);
 const periods=s=>s.almI&&s.almF&&tm(s.almI)>tm(s.abre)&&tm(s.almF)>=tm(s.almI)&&tm(s.fecha)>tm(s.almF)?[[tm(s.abre),tm(s.almI)],[tm(s.almF),tm(s.fecha)]]:[[tm(s.abre),tm(s.fecha)]];
@@ -155,6 +179,7 @@ const shrink=async(f,cb)=>{try{tip("Enviando foto…");const img=await new Promi
 /* ===== CLIENTE ===== */
 function card(s){return`<div class="cd l" data-a="shop" data-id="${s.id}" style="padding:0;overflow:hidden">${cover(s,150)}<div class="id" style="padding:14px;margin:0">${av(s,52)}<div style="min-width:0;flex:1"><b style="font:800 16px var(--f);font-stretch:112%;text-transform:uppercase">${E(s.n)}</b><div class="mu">${E(s.end)} · ${E(s.cd)}/${s.uf}</div><div class="rw" style="margin-top:6px"><span style="font:600 12px var(--m)">★ ${nota(s)} <span class="mu">(${s.av[1]})</span></span><span class="mu" style="font:500 12px var(--m)">${s.sv.length} serviços</span></div></div></div></div>`}
 const loadCid=u=>{if(!u||CIDX[u])return;fetch("https://servicodados.ibge.gov.br/api/v1/localidades/estados/"+u+"/municipios").then(r=>r.json()).then(a=>{CIDX[u]=a.map(x=>x.nome).sort((x,y)=>x.localeCompare(y,"pt"));rr()}).catch(()=>{})};
+const zapUrl=m=>{let n=String(DB.zap||"").replace(/\D/g,"");if(!n)return"";if(n.length<=11)n="55"+n;return"https://wa.me/"+n+"?text="+encodeURIComponent(m)};
 const norm=t=>String(t||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
 const filt=()=>{const q=norm(S.q).split(/\s+/).filter(Boolean);return DB.shops.filter(s=>(!S.uf||s.uf===S.uf)&&(!S.cid||s.cd===S.cid)&&(!S.tp||s.tp===S.tp||(S.tp==="Salão"&&s.tp==="Estúdio"))&&q.every(w=>norm(s.n).includes(w)))};
 const lst=()=>filt().map(card).join("")||'<p class="em">Nenhum local encontrado nesse filtro.</p>';
@@ -165,7 +190,7 @@ function vHome(){const ufs=Object.keys(DB.est).filter(u=>DB.est[u]);
  <div class="cats">${TIPOS.map(t=>`<button data-a="tp" data-t="${t}" class="${S.tp===t?"on":""}">${svg(t)}${t}</button>`).join("")}</div>
  <div class="f"><select data-s="uf" aria-label="Estado"><option value="">Estado</option>${ufs.map(u=>`<option ${u===S.uf?"selected":""}>${u}</option>`).join("")}</select>
  <select data-s="cid" aria-label="Cidade"><option value="">Cidade</option>${(CIDX[S.uf]||DB.cid[S.uf]||[]).map(c=>`<option ${c===S.cid?"selected":""}>${E(c)}</option>`).join("")}</select></div>
- <input data-s="q" type="search" autocomplete="off" placeholder="Buscar pelo nome" value="${E(S.q)}"><h2>${S.tp||"Em destaque"}</h2><div class="gr" id="lst">${lst()}</div><p style="text-align:center;margin-top:26px"></p></div>`}
+ <input data-s="q" type="search" autocomplete="off" placeholder="Buscar pelo nome" value="${E(S.q)}"><h2>${S.tp||"Em destaque"}</h2><div class="gr" id="lst">${lst()}</div><div class="cd" style="margin:22px 0 8px;text-align:center"><div class="mu" style="font-size:14px;line-height:1.5;margin-bottom:2px">Entre em contato com a administração para saber como cadastrar sua empresa.</div><button class="bt s" data-a="sup" data-k="emp">Entrar em contato com a administração</button></div></div>`}
 function vShop(){const s=sh(S.shop),G=s.gal||[],rv=s.rv||[];
  return`<button class="bt s m" data-a="v" data-v="home" style="margin-top:14px">← Voltar</button>${cover(s,190)}<div class="id">${av(s,64)}<div><h1>${E(s.n)}</h1><p class="mu">${E(s.tp)} · ${E(s.end)}, ${E(s.cd)}/${s.uf}</p></div></div>
  <div class="stat"><div><b style="color:#fff">★ ${nota(s)}</b><span class="mu">${s.av[1]} avaliações</span></div><div><b>${s.sv.length}</b><span class="mu">serviços</span></div><div><b>${s.pr.length}</b><span class="mu">profissionais</span></div></div>
@@ -186,13 +211,13 @@ function vBook(){const s=sh(S.shop),B=S.B,x=B.s?s.sv.find(v=>v.id===B.s):null,mu
 function vMine(){if(!S.user){S.ret="mine";return vLogin()}const A=[];DB.shops.forEach(s=>s.ag.forEach(a=>{if(S.user&&a.u===S.user.uid)A.push([s,a])}));
  return`<h1>Meus agendamentos</h1>${!S.user?'<p class="mu">Entre para ver seus agendamentos.</p>':A.length?A.map(([s,a])=>`<div class="cd"><div class="rw"><b>${E(s.n)}</b>${stTag(a.st)}</div><div class="mu">${E(a.sv)} · ${R(a.p)} · ${a.d.split("-").reverse().slice(0,2).join("/")} às ${hm(a.h)}${a.pg?" · paga no local ("+E(a.pg)+")":""}</div>
  <div class="fl">${a.st!=="cancelado"&&a.st!=="recusado"?`<button data-a="cx" data-s="${s.id}" data-id="${a.id}">Cancelar</button>`:""}${a.st==="confirmado"&&!a.avl?`<button data-a="rate" data-s="${s.id}" data-id="${a.id}">Avaliar ★</button>`:""}</div></div>`).join(""):'<p class="em">Você ainda não tem agendamentos.</p>'}`}
-function vPerfil(){if(!S.user){S.ret="perfil";return vLogin()}const u=S.user;return`<h1>${S.adm||S.own?"Administração":"Perfil"}</h1><div class="cd"><b>${E(u.nome||"")}</b><div class="mu">${E(u.email||"")}</div></div>${S.adm?'<button class="bt" data-a="role" data-r="admin">Painel do administrador</button>':""}${S.own?'<button class="bt" data-a="role" data-r="dono">Minha loja</button>':""}<button class="bt s" data-a="logout">Sair da conta</button>`}
+function vPerfil(){if(!S.user){S.ret="perfil";return vLogin()}const u=S.user;return`<h1>${S.adm||S.own?"Administração":"Perfil"}</h1><div class="cd"><b>${E(u.nome||"")}</b><div class="mu">${E(u.email||"")}</div></div>${S.adm?'<button class="bt" data-a="role" data-r="admin">Painel do administrador</button>':""}${S.own?'<button class="bt" data-a="role" data-r="dono">Minha loja</button>':""}<button class="bt s" data-a="sup" data-k="sup">Falar com a administração</button><button class="bt s" data-a="logout">Sair da conta</button>`}
 function vLogin(){const up=S.tab==="up";
  return`<h1>${up?"Criar conta":"Entrar"}</h1><p class="mu">${up?"Crie sua conta para agendar.":"Use o mesmo acesso, seja cliente, empresa ou administrador."}</p>
  <div class="seg"><button data-a="tab" data-t="in" class="${up?"":"on"}">Entrar</button><button data-a="tab" data-t="up" class="${up?"on":""}">Criar conta</button></div>
  ${up?`<label>Nome<input id="ln" autocomplete="name"></label><label>WhatsApp<input id="lt" inputmode="tel" autocomplete="tel"></label>`:""}
  <label>E-mail<input id="le" type="email" autocomplete="email"></label><label>Senha<input id="ls" type="password" ${up?'placeholder="Mínimo 6 caracteres"':""}></label>
- <div class="er">${E(S.err)}</div><button class="bt" data-a="${up?"signup":"login"}">${up?"Criar conta":"Entrar"}</button>${up?"":'<button class="bt s" data-a="forgot">Esqueci minha senha</button>'}
+ <div class="er">${E(S.err)}</div><button class="bt" data-a="${up?"signup":"login"}">${up?"Criar conta":"Entrar"}</button>${up?"":'<button class="bt s" data-a="forgot">Esqueci minha senha</button>'}<div class="cd" style="margin-top:22px;text-align:center"><div class="mu" style="font-size:14px;line-height:1.5">Entre em contato com a administração para saber como cadastrar sua empresa.</div><button class="bt s" data-a="sup" data-k="emp">Entrar em contato com a administração</button></div>
  `}
 
 /* ===== DONO ===== */
@@ -227,8 +252,9 @@ function vOwner(){if(!S.own)return loginBox("Área da empresa","Acesso criado pe
 
 /* ===== ADMIN ===== */
 function vAdmin(){if(!S.adm)return loginBox("Administrador","Você cria o perfil e o login de cada empresa.","a");
- const tabs=`<div class="fl" style="margin-top:14px">${[["shops","Empresas"],["hero","Banner"],["ufs","Estados"]].map(t=>`<button data-a="at" data-t="${t[0]}" style="${S.at===t[0]?"background:var(--b);border-color:var(--b)":""}">${t[1]}</button>`).join("")}<span style="flex:1"></span><button data-a="role" data-r="cliente">Ver site</button></div>`;
+ const tabs=`<div class="fl" style="margin-top:14px">${[["shops","Empresas"],["hero","Banner"],["ufs","Estados"],["ct","Contato"]].map(t=>`<button data-a="at" data-t="${t[0]}" style="${S.at===t[0]?"background:var(--b);border-color:var(--b)":""}">${t[1]}</button>`).join("")}<span style="flex:1"></span><button data-a="role" data-r="cliente">Ver site</button></div>`;
  if(S.at==="hero")return`<h1>Banners da tela inicial</h1>${tabs}<p class="mu">Envie até 8 banners. Eles passam sozinhos na tela inicial, e o cliente também pode arrastar. Use imagens largas, por exemplo 1200 x 480 px, com o texto escrito dentro da imagem.</p>${DB.banners.length?DB.banners.map((u,i)=>`<div class="cd bnr"><img src="${E(u)}" alt=""><div style="flex:1;min-width:0"><b>Banner ${i+1}</b><div class="fl">${i?`<button data-a="bnup" data-i="${i}">Subir</button>`:""}<button data-a="bnrm" data-i="${i}">Remover</button></div></div></div>`).join(""):'<div class="cd mu">Nenhum banner enviado. A home mostra o texto padrão.</div>'}<label>Adicionar banners (pode escolher vários)<input type="file" accept="image/*" multiple data-f="hero"></label>`;
+ if(S.at==="ct")return`<h1>Contato</h1>${tabs}<p class="mu">Número de WhatsApp (já vem com o (88) 99354-6992) que recebe as mensagens de empresas interessadas e os pedidos de suporte.</p><label>Seu WhatsApp (com DDD)<input id="zp" inputmode="tel" autocomplete="off" placeholder="(11) 91234-5678" value="${E(DB.zap||"")}"></label><div class="er">${E(S.err)}</div><button class="bt" data-a="zap">Salvar número</button><button class="bt s" data-a="sup" data-k="sup">Testar botão</button>`;
  if(S.at==="ufs")return`<h1>Estados ativos</h1>${tabs}<p class="mu">Só os estados marcados como Ativo aparecem no filtro do cliente.</p>${UFS.map(u=>`<div class="cd rw"><b>${u}</b><button class="bt m ${DB.est[u]?"g":"s"}" data-a="uf" data-u="${u}">${DB.est[u]?"Ativo":"Inativo"}</button></div>`).join("")}`;
  const tot=DB.shops.reduce((t,s)=>t+s.ag.length,0);
  return`<h1>Painel do administrador</h1>${tabs}<div class="kp" style="margin-top:12px"><div class="cd"><b>${DB.shops.length}</b><span class="mu">empresas</span></div><div class="cd"><b>${tot}</b><span class="mu">agendamentos</span></div></div>
@@ -254,7 +280,7 @@ const nx=id=>setTimeout(()=>{const e=$("#"+id);if(e&&e.scrollIntoView)e.scrollIn
 const wof=k=>{const m=new Date();m.setHours(12,0,0,0);m.setDate(m.getDate()-(m.getDay()+6)%7);const q=k.split("-"),d=new Date(+q[0],q[1]-1,+q[2],12);return Math.floor(Math.round((d-m)/864e5)/7)};
 const pr_=(s,id)=>s.pr.find(p=>p.id===id)||s.pr[0];
 const PV=(s,id)=>{const p=pr_(s,id);return Object.assign({},p,{ag:BZ.filter(a=>a.shopId===s.id&&a.pid===p.id)})};
-const pth=p=>`<div class="th" style="${p.foto?`background-image:url('${E(p.foto)}')`:""}">${p.foto?"":E(p.n[0])}</div>`;
+const pth=p=>`<div class="th pf" style="${p.foto?`background-image:url('${E(p.foto)}')`:""}">${p.foto?"":E(p.n[0])}</div>`;
 const wa=a=>{let n=String(a.tel||"").replace(/\D/g,"");if(n.length<=11)n="55"+n;const w=a.sv+(a.pn?" com "+a.pn:"")+", dia "+a.d.split("-").reverse().slice(0,2).join("/")+" às "+hm(a.h),m=a.st==="confirmado"?"Olá, "+a.nome+"! Seu agendamento está confirmado: "+w+". Até lá!":a.st==="recusado"||a.st==="cancelado"?"Olá, "+a.nome+"! Não foi possível atender o pedido de "+w+". Quer escolher outro horário?":"Olá, "+a.nome+"! Recebemos seu pedido: "+w+". Já vamos confirmar.";return"https://wa.me/"+n+"?text="+encodeURIComponent(m)};
 const firstDay=()=>{const sp=sh(S.shop),P=PV(sp,S.B.p);let k=0;while(k<27&&!slots(P,dk(add(k))).some(m=>fits(P,dk(add(k)),m)))k++;S.B.d=dk(add(k));S.B.h=null;S.wk=wof(S.B.d)};
 const perfilAviso=s=>{const f=[];if(!s.capa)f.push("banner");if(!s.logo)f.push("logo");if(s.pr.some(p=>!p.foto))f.push("foto de cada profissional");return f.length?`<div class="cd"><b>Complete seu perfil</b><div class="mu">Falta enviar: ${f.join(", ")}. Fotos reais fazem mais clientes agendarem.</div><button class="bt s m" style="margin-top:10px" data-a="ot" data-t="eq">Enviar fotos</button></div>`:""};
@@ -266,13 +292,13 @@ const ty=()=>/INPUT|SELECT|TEXTAREA/.test((document.activeElement||{}).tagName||
 const rr=()=>{if(ty())PEND=1;else R_()};addEventListener("focusout",()=>{if(PEND)setTimeout(()=>{if(!ty()){PEND=0;R_()}},60)});
 const dist=()=>DB.shops.forEach(s=>s.ag=AG.filter(a=>a.shopId===s.id));
 const autosave=()=>{if(!S.own||!S.user)return;const s=me();if(!s)return;const j=JSON.stringify(pub(s));if(j!==s._j){s._j=j;setDoc(doc(db,"shops",String(s.id)),JSON.parse(j)).catch(()=>tip("Não foi possível salvar. Verifique a conexão."))}};
-const saveGeo=()=>setDoc(doc(db,"config","geo"),JSON.parse(JSON.stringify({est:DB.est,cid:DB.cid,banners:DB.banners}))).catch(()=>tip("Não foi possível salvar."));
+const saveGeo=()=>setDoc(doc(db,"config","geo"),JSON.parse(JSON.stringify({est:DB.est,cid:DB.cid,banners:DB.banners,zap:DB.zap||""}))).catch(()=>tip("Não foi possível salvar."));
 const fromDoc=(id,d)=>{const s=Object.assign({},d);s.id=+id;s.dono={nome:d.ownerNome||"",email:d.ownerEmail||""};s.n=d.n||"Empresa";s.tp=PAL[d.tp]?d.tp:"Estúdio";s.uf=d.uf||"SP";s.cd=d.cd||"";s.end=d.end||"";s.abre=d.abre||"09:00";s.fecha=d.fecha||"18:00";s.dias=d.dias||[1,2,3,4,5,6];s.sv=d.sv||[];s.pg=d.pg&&d.pg.length?d.pg:["Dinheiro","Pix"];s.av=d.av||[0,0];
  s.pr=d.pr&&d.pr.length?d.pr:[{id:+id+1,n:d.ownerNome||"Profissional",abre:s.abre,almI:d.almI||"",almF:d.almF||"",fecha:s.fecha,dias:s.dias,folgas:[]}];s.pr.forEach(p=>{p.folgas=p.folgas||[];p.dias=p.dias||s.dias});s.ag=[];s._j=JSON.stringify(pub(s));return s};
 let E0=+new URLSearchParams(location.search).get("e")||0;
 onSnapshot(collection(db,"shops"),q=>{DB.shops=q.docs.map(x=>fromDoc(x.id,x.data()));dist();if(E0&&sh(E0)){S.shop=E0;S.v="shop";S.role="cliente";E0=0}rr()},()=>{});
 onSnapshot(query(collection(db,"busy"),where("d",">=",T)),q=>{BZ=q.docs.map(x=>{const b=x.data();return{id:x.id,shopId:+b.shopId,pid:+b.pid,d:b.d,h:b.h,m:b.m,st:"confirmado"}});rr()},()=>{});
-onSnapshot(doc(db,"config","geo"),x=>{if(x.exists()){const g=x.data();if(g.est)DB.est=Object.assign(Object.fromEntries(UFS.map(u=>[u,false])),g.est);if(g.cid)DB.cid=g.cid;if(g.banners)DB.banners=g.banners;else if(/^https?:/.test(g.hero||""))DB.banners=[g.hero]}rr()},()=>{});
+onSnapshot(doc(db,"config","geo"),x=>{if(x.exists()){const g=x.data();if(g.est)DB.est=Object.assign(Object.fromEntries(UFS.map(u=>[u,false])),g.est);if(g.cid)DB.cid=g.cid;if(g.zap)DB.zap=g.zap;if(g.banners)DB.banners=g.banners;else if(/^https?:/.test(g.hero||""))DB.banners=[g.hero]}rr()},()=>{});
 const agsnap=q=>{AG=q.docs.map(x=>Object.assign({},x.data(),{id:+x.id,shopId:+x.data().shopId}));dist();rr()};
 onAuthStateChanged(auth,async u=>{UNS.forEach(f=>f());UNS=[];AG=[];dist();
  if(!u){S.user=null;S.adm=false;S.own=null;return R_()}
@@ -355,6 +381,8 @@ document.addEventListener("click",e=>{const t=e.target.closest("[data-a]");if(!t
  if(a==="cplk"){const i=$("#lk");i.select();try{navigator.clipboard.writeText(i.value)}catch(x){document.execCommand("copy")}tip("Link copiado");return}
  if(a==="alogin"){doLogin("alogin",$("#ae").value.trim().toLowerCase(),$("#as").value.trim());return}
  if(a==="at")return go(()=>{S.at=d.t});
+ if(a==="sup"){const m=d.k==="emp"?"Olá! Conheci o HORIX e quero colocar meu estabelecimento na plataforma. Pode me passar mais informações?":"Olá! Preciso de suporte no HORIX."+(S.user&&S.user.email?" Meu e-mail: "+S.user.email:"");const u=zapUrl(m);if(!u)return tip("Contato indisponível no momento.");window.open(u,"_blank","noopener");return}
+ if(a==="zap"){const n=($("#zp").value||"").replace(/\D/g,"");if(n&&(n.length<10||n.length>13))return go(()=>{S.err="Número inválido. Use DDD + número."});return go(()=>{DB.zap=n;saveGeo();tip(n?"Número salvo.":"Número removido.")})}
  if(a==="uf")return go(()=>{DB.est[d.u]=!DB.est[d.u];saveGeo()});
  if(a==="pw"){sendPasswordResetEmail(auth,sh(+d.id).dono.email).then(()=>tip("E-mail para criar nova senha enviado à empresa")).catch(e=>tip(fm(e)));return}
  if(a==="rm"){if(confirm("Excluir esta empresa?")){const s=sh(+d.id);deleteDoc(doc(db,"shops",String(s.id))).catch(()=>tip("Não foi possível excluir."));if(s.ownerUid)deleteDoc(doc(db,"users",s.ownerUid)).catch(()=>{})}return}
