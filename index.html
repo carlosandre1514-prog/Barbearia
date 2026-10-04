@@ -89,7 +89,11 @@ h2[id]{scroll-margin-top:120px}
 <div class="roles" id="roles"></div></div></div>
 <div class="wrap" id="app"></div><div class="nav" id="nav"></div><div id="t" role="status"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<script>
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import{getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut,sendPasswordResetEmail}from"https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+import{getFirestore,doc,collection,getDoc,setDoc,updateDoc,deleteDoc,onSnapshot,query,where,writeBatch}from"https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+const FBC={apiKey:"AIzaSyD0WS-svlC6lzM_p2ED5fuRvXFgoykFEpM",authDomain:"fanimes-de6d8.firebaseapp.com",projectId:"fanimes-de6d8",storageBucket:"fanimes-de6d8.firebasestorage.app",messagingSenderId:"981746262412",appId:"1:981746262412:web:820d1e387032c2d98a36a9"};
 const $=s=>document.querySelector(s),E=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const R=n=>(+n||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
 const hm=m=>String(m/60|0).padStart(2,"0")+":"+String(m%60).padStart(2,"0"),tm=h=>{const p=h.split(":");return+p[0]*60+ +p[1]};
@@ -97,14 +101,8 @@ const dk=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+Strin
 const add=n=>{const d=new Date();d.setDate(d.getDate()+n);return d};
 const PG=["Dinheiro","Pix","Débito","Crédito"],DS=["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"],TIPOS=["Barbearia","Salão","Manicure","Maquiagem","Estúdio"];
 const wd=k=>{const p=k.split("-");return new Date(+p[0],p[1]-1,+p[2]).getDay()};
-const DEMO=location.protocol==="file:"||/^(localhost|127\.0\.0\.1)$/.test(location.hostname);let seq=100,IP=null;const T=dk(add(0)),T2=dk(add(2));
-const ADM={email:"admin@agendabarba.com",senha:"admin123"};
-const DB={users:[],est:{SP:true,RJ:true,MG:false},cid:{SP:["São Paulo","Campinas"],RJ:["Rio de Janeiro"],MG:["Belo Horizonte"]},shops:[
-{id:1,n:"Barbearia Navalha",end:"Rua Augusta, 1200",uf:"SP",cd:"São Paulo",tp:"Barbearia",abre:"09:00",almI:"12:00",almF:"13:30",fecha:"19:00",dias:[1,2,3,4,5,6],pr:[{id:11,n:"Zé Carlos",abre:"09:00",almI:"12:00",almF:"13:30",fecha:"19:00",dias:[1,2,3,4,5,6],folgas:[]},{id:12,n:"Rafa",abre:"10:00",almI:"13:00",almF:"14:00",fecha:"20:00",dias:[2,3,4,5,6],folgas:[]}],pg:["Dinheiro","Pix","Débito","Crédito"],av:[47,10],rv:[["Ana",5,"Corte impecável e atendimento pontual."],["Leo",5,"A melhor barba da região."],["Caio",4,"Ótimo, só o espaço é pequeno."]],dono:{nome:"Zé Carlos",email:"empresa@navalha.com",senha:"123456"},
- sv:[{id:1,n:"Corte degradê",p:45,m:60},{id:2,n:"Barba",p:30,m:30},{id:3,n:"Corte + barba",p:70,m:90},{id:4,n:"Barbaterapia",p:60,m:60}],
- ag:[{id:1,u:"ana@email.com",nome:"Ana",tel:"11 98888-0000",sv:"Corte degradê",p:45,m:60,d:T,h:600,pid:11,pn:"Zé Carlos",st:"confirmado"},{id:2,u:"leo@email.com",nome:"Leo",tel:"11 97777-1111",sv:"Barba",p:30,m:30,d:T2,h:840,pid:11,pn:"Zé Carlos",st:"pendente"},{id:3,u:"bia@email.com",nome:"Bia",tel:"11 96666-2222",sv:"Corte + barba",p:70,m:90,d:T2,h:810,pid:11,pn:"Zé Carlos",st:"pendente"}]},
-{id:2,n:"Studio Bella Unhas",end:"Av. Brasil, 340",uf:"SP",cd:"Campinas",tp:"Manicure",abre:"10:00",almI:"13:00",almF:"14:00",fecha:"18:00",dias:[2,3,4,5,6],pr:[{id:21,n:"Bela",abre:"10:00",almI:"13:00",almF:"14:00",fecha:"18:00",dias:[2,3,4,5,6],folgas:[]}],pg:["Pix","Débito","Crédito"],av:[28,6],rv:[["Duda",5,"O gel durou 3 semanas!"]],dono:{nome:"Bela",email:"empresa@bella.com",senha:"123456"},sv:[{id:1,n:"Esmaltação em gel",p:80,m:60},{id:2,n:"Manicure completa",p:40,m:45}],ag:[]},
-{id:3,n:"Maria Make",end:"Rua das Flores, 55",uf:"RJ",cd:"Rio de Janeiro",tp:"Maquiagem",abre:"13:00",fecha:"20:00",dias:[3,4,5,6],pr:[{id:31,n:"Maria",abre:"13:00",almI:"",almF:"",fecha:"20:00",dias:[3,4,5,6],folgas:[]}],pg:["Dinheiro","Pix"],av:[19,4],dono:{nome:"Maria",email:"empresa@maria.com",senha:"123456"},sv:[{id:1,n:"Maquiagem social",p:120,m:60},{id:2,n:"Maquiagem de noiva",p:350,m:150}],ag:[]}]};
+const DEMO=location.protocol==="file:"||/^(localhost|127\.0\.0\.1)$/.test(location.hostname);let seq=Date.now(),IP=null,BZ=[],AG=[];const T=dk(add(0)),T2=dk(add(2));
+const DB={est:{SP:true,RJ:true,MG:false},cid:{SP:["São Paulo","Campinas"],RJ:["Rio de Janeiro"],MG:["Belo Horizonte"]},shops:[],hero:null};
 const S={role:"cliente",pro:null,op:null,tab:"in",wk:0,owk:0,tp:"",tmp:null,v:"home",uf:"",cid:"",q:"",shop:null,B:{d:null,h:null,s:null},user:null,own:null,adm:false,od:T,ot:"agenda",at:"shops",ret:null,err:""};
 const sh=id=>DB.shops.find(s=>s.id===id),me=()=>sh(S.own);
 const periods=s=>s.almI&&s.almF&&tm(s.almI)>tm(s.abre)&&tm(s.almF)>=tm(s.almI)&&tm(s.fecha)>tm(s.almF)?[[tm(s.abre),tm(s.almI)],[tm(s.almF),tm(s.fecha)]]:[[tm(s.abre),tm(s.fecha)]];
@@ -129,7 +127,12 @@ const bg=s=>`linear-gradient(135deg,${PAL[s.tp][0]},${PAL[s.tp][1]})`;
 const cover=(s,h,o)=>`<div class="cv" style="height:${h}px${s.capa?`;background-image:url('${s.capa}')`:""}"><div class="tg"><span class="tag ${open(s)?"ok":"no"}">${open(s)?"Aberta":"Fechada"}</span></div>${o||""}</div>`;
 const thumb=(s,x,i)=>x.img?`<div class="th" style="background-image:url('${x.img}')"></div>`:`<div class="th">${String(i+1).padStart(2,"0")}</div>`;
 const av=(s,z)=>`<div class="av" style="width:${z}px;height:${z}px;font-size:${z/2.4|0}px${s.logo?`;background-image:url('${s.logo}')`:""}">${s.logo?"":E(s.n[0])}</div>`;
-const shrink=(f,cb)=>{const r=new FileReader();r.onload=()=>{const i=new Image();i.onload=()=>{const k=Math.min(1,720/Math.max(i.width,i.height)),c=document.createElement("canvas");c.width=i.width*k;c.height=i.height*k;c.getContext("2d").drawImage(i,0,0,c.width,c.height);cb(c.toDataURL("image/jpeg",.78))};i.src=r.result};r.readAsDataURL(f)};
+const IK={signer:"https://agenda-assinador.carlosandre-ad1514.workers.dev"};
+const shrink=async(f,cb)=>{try{tip("Enviando foto…");const img=await new Promise((ok,no)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=no;i.src=URL.createObjectURL(f)});
+ const k=Math.min(1,1280/Math.max(img.width,img.height)),c=document.createElement("canvas");c.width=img.width*k;c.height=img.height*k;c.getContext("2d").drawImage(img,0,0,c.width,c.height);
+ const bl=await new Promise(r=>c.toBlob(r,"image/jpeg",.82)),g=await fetch(IK.signer).then(r=>r.json()),fd=new FormData();
+ fd.append("file",bl);fd.append("fileName","ab_"+Date.now()+".jpg");fd.append("folder","/agenda-barba");fd.append("publicKey",g.publicKey);fd.append("signature",g.signature);fd.append("expire",g.expire);fd.append("token",g.token);
+ const r=await fetch("https://upload.imagekit.io/api/v1/files/upload",{method:"POST",body:fd}).then(r=>r.json());if(!r.url)throw 0;cb(r.url)}catch(e){tip("Não foi possível enviar a foto. Tente de novo.")}};
 /* ===== CLIENTE ===== */
 function card(s){return`<div class="cd l" data-a="shop" data-id="${s.id}" style="padding:0;overflow:hidden">${cover(s,150)}<div class="id" style="padding:14px;margin:0">${av(s,52)}<div style="min-width:0;flex:1"><b style="font:800 16px var(--f);font-stretch:112%;text-transform:uppercase">${E(s.n)}</b><div class="mu">${E(s.end)} · ${E(s.cd)}/${s.uf}</div><div class="rw" style="margin-top:6px"><span style="font:600 12px var(--m)">★ ${nota(s)} <span class="mu">(${s.av[1]})</span></span><span class="mu" style="font:500 12px var(--m)">${s.sv.length} serviços</span></div></div></div></div>`}
 function vHome(){const ufs=Object.keys(DB.est).filter(u=>DB.est[u]);
@@ -157,7 +160,7 @@ function vBook(){const s=sh(S.shop),B=S.B,x=B.s?s.sv.find(v=>v.id===B.s):null,mu
  ${P&&B.h!=null?`<h2 id="p3">${n0+1}. Seus dados</h2><label>Nome<input id="bn" value="${E(S.user?S.user.nome:"")}"></label><label>WhatsApp<input id="bt" inputmode="tel" value="${E(S.user?S.user.tel:"")}" placeholder="11 99999-9999"></label><label>Como você vai pagar no local?<select id="bp">${(s.pg||[]).map(m=>`<option>${E(m)}</option>`).join("")}</select></label><p class="mu">Você paga na hora do atendimento. Nada é cobrado agora.</p>
  <div class="cd"><div class="rw"><span>${E(x.n)}</span><b>${R(x.p)}</b></div><div class="mu">${DS[wd(B.d)]}, ${B.d.split("-").reverse().slice(0,2).join("/")} às ${hm(B.h)} · ${x.m} min${multi?" · com "+E(pr.n):""}</div></div>
  <div class="er">${E(S.err)}</div><button class="bt" data-a="send">${S.user?"Agendar":"Entrar e solicitar"}</button>`:""}`}
-function vMine(){const A=[];DB.shops.forEach(s=>s.ag.forEach(a=>{if(S.user&&a.u===S.user.email)A.push([s,a])}));
+function vMine(){const A=[];DB.shops.forEach(s=>s.ag.forEach(a=>{if(S.user&&a.u===S.user.uid)A.push([s,a])}));
  return`<h1>Meus agendamentos</h1>${!S.user?'<p class="em">Entre para ver seus agendamentos.</p><button class="bt" data-a="v" data-v="login">Entrar</button>':A.length?A.map(([s,a])=>`<div class="cd"><div class="rw"><b>${E(s.n)}</b>${stTag(a.st)}</div><div class="mu">${E(a.sv)} · ${R(a.p)} · ${a.d.split("-").reverse().slice(0,2).join("/")} às ${hm(a.h)}${a.pg?" · paga no local ("+E(a.pg)+")":""}</div>
  <div class="fl">${a.st!=="cancelado"&&a.st!=="recusado"?`<button data-a="cx" data-s="${s.id}" data-id="${a.id}">Cancelar</button>`:""}${a.st==="confirmado"&&!a.avl?`<button data-a="rate" data-s="${s.id}" data-id="${a.id}">Avaliar ★</button>`:""}</div></div>`).join(""):'<p class="em">Você ainda não tem agendamentos.</p>'}`}
 function vLogin(){const up=S.tab==="up";
@@ -165,13 +168,13 @@ function vLogin(){const up=S.tab==="up";
  <div class="seg"><button data-a="tab" data-t="in" class="${up?"":"on"}">Entrar</button><button data-a="tab" data-t="up" class="${up?"on":""}">Criar conta</button></div>
  ${up?`<label>Nome<input id="ln" autocomplete="name"></label><label>WhatsApp<input id="lt" inputmode="tel" autocomplete="tel"></label>`:""}
  <label>E-mail<input id="le" type="email" autocomplete="email"></label><label>Senha<input id="ls" type="password" ${up?'placeholder="Mínimo 6 caracteres"':""}></label>
- <div class="er">${E(S.err)}</div><button class="bt" data-a="${up?"signup":"login"}">${up?"Criar conta":"Entrar"}</button>
- ${DEMO?`<div class="cd mu" style="line-height:1.7"><b style="color:var(--tx)">Contas de teste (só neste modo local)</b><br>Administrador: admin@agendabarba.com · admin123<br>Empresa: empresa@navalha.com · 123456<br>Cliente: crie uma conta na aba Criar conta.</div>`:""}`}
+ <div class="er">${E(S.err)}</div><button class="bt" data-a="${up?"signup":"login"}">${up?"Criar conta":"Entrar"}</button>${up?"":'<button class="bt s" data-a="forgot">Esqueci minha senha</button>'}
+ `}
 
 /* ===== DONO ===== */
-function loginBox(t,hint,key){return`<h1>${t}</h1><p class="mu">${hint}</p><label>E-mail<input id="${key}e" type="email" value="${DEMO?(key==="o"?"empresa@navalha.com":"admin@agendabarba.com"):""}"></label><label>Senha<input id="${key}s" type="password" value="${DEMO?(key==="o"?"123456":"admin123"):""}"></label><div class="er">${E(S.err)}</div><button class="bt" data-a="${key}login">Entrar</button>`}
+function loginBox(t,hint,key){return`<h1>${t}</h1><p class="mu">${hint}</p><label>E-mail<input id="${key}e" type="email" value=""></label><label>Senha<input id="${key}s" type="password" ></label><div class="er">${E(S.err)}</div><button class="bt" data-a="${key}login">Entrar</button>`}
 function oTabs(){return`<div class="fl" style="margin-top:14px">${[["agenda","Agenda"],["eq","Equipe"],["sv","Serviços"],["hr","Perfil"],["res","Resumo"]].map(t=>`<button data-a="ot" data-t="${t[0]}" style="${S.ot===t[0]?"background:var(--b);border-color:var(--b)":""}">${t[1]}</button>`).join("")}<span style="flex:1"></span><button data-a="role" data-r="cliente">Ver site</button></div>`}
-function vOwner(){if(!S.own)return loginBox("Área da empresa","Acesso criado pelo administrador. Sem troca de senha: se esquecer, fale com o suporte."+(DEMO?" Demo: empresa@navalha.com / 123456":""),"o");
+function vOwner(){if(!S.own)return loginBox("Área da empresa","Acesso criado pelo administrador. Se esquecer a senha, use \"Esqueci minha senha\" na tela Entrar.","o");
  const s=me();let b="";
  if(S.ot==="agenda"){const op=S.op&&s.pr.some(p=>p.id===S.op)?S.op:s.pr[0].id,Pq=PV(s,op),A=s.ag.filter(a=>a.d===S.od).sort((a,b)=>a.h-b.h),P=A.filter(a=>a.st==="pendente"&&a.pid===op),C=A.filter(a=>a.st==="confirmado"&&a.pid===op),sq=slots(Pq,S.od);
   b=`${perfilAviso(s)}<h2>Pedidos para este dia (${P.length})</h2>${P.map(a=>`<div class="cd"><div class="rw"><b>${E(a.nome)}</b>${stTag(a.st)}</div><div class="mu">${E(a.sv)} · ${R(a.p)} · ${hm(a.h)}–${hm(a.h+a.m)}${a.pn?" · com "+E(a.pn):""} · ${E(a.tel)}${a.pg?" · paga com "+E(a.pg):""}</div><div class="fl"><button class="bt g m" data-a="ok" data-id="${a.id}">Confirmar</button><button class="bt d m" data-a="no" data-id="${a.id}">Recusar</button><a class="bt s m" style="text-decoration:none;display:inline-flex;align-items:center" target="_blank" rel="noopener" href="${wa(a)}">WhatsApp</a></div></div>`).join("")||'<p class="mu">Sem pedidos pendentes.</p>'}
@@ -199,7 +202,7 @@ function vOwner(){if(!S.own)return loginBox("Área da empresa","Acesso criado pe
  return`${cover(s,110)}<h1 style="margin-top:12px">${E(s.n)}</h1>${oTabs()}${S.ot==="agenda"?dayChips(S.od,"od",S.owk,null,true):""}${b}`}
 
 /* ===== ADMIN ===== */
-function vAdmin(){if(!S.adm)return loginBox("Administrador","Você cria o perfil e o login de cada empresa. Demo: admin@agendabarba.com / admin123","a");
+function vAdmin(){if(!S.adm)return loginBox("Administrador","Você cria o perfil e o login de cada empresa.","a");
  const tabs=`<div class="fl" style="margin-top:14px">${[["shops","Empresas"],["hero","Banner"],["ufs","Estados"]].map(t=>`<button data-a="at" data-t="${t[0]}" style="${S.at===t[0]?"background:var(--b);border-color:var(--b)":""}">${t[1]}</button>`).join("")}<span style="flex:1"></span><button data-a="role" data-r="cliente">Ver site</button></div>`;
  if(S.at==="hero")return`<h1>Banner da tela inicial</h1>${tabs}<p class="mu">Esta imagem substitui o texto "Seu horário, sem fila" no topo da home. Escreva o texto direto na imagem: ela aparece inteira, sem cortes. Use uma imagem larga, por exemplo 1200 x 480 px. No site publicado, salve o arquivo como assets/banner.jpg no repositório (veja o LEIA-ME); o envio abaixo serve de pré-visualização.</p>${DB.hero?`<img class="hb" src="${DB.hero}" alt="Banner">`:'<div class="cd mu">Nenhum banner enviado. A home mostra o texto padrão.</div>'}<label>Enviar banner<input type="file" accept="image/*" data-f="hero"></label>${DB.hero?'<button class="bt s" data-a="nohero">Remover banner</button>':""}`;
  if(S.at==="ufs")return`<h1>Estados ativos</h1>${tabs}<p class="mu">Só os estados marcados aparecem no filtro do cliente.</p>${Object.keys(DB.est).map(u=>`<div class="cd rw"><b>${u}</b><button class="bt m ${DB.est[u]?"g":"s"}" data-a="uf" data-u="${u}">${DB.est[u]?"Ativo":"Inativo"}</button></div>`).join("")}`;
@@ -222,29 +225,62 @@ function vMapa(){const ch=(l,r,v)=>`<button data-a="jump" data-r="${r}" data-v="
  <h2>Regras da agenda</h2><div class="cd mu" style="line-height:1.7">1. Cliente escolhe o serviço na página da empresa, depois o profissional, depois o dia e o horário, depois confirma os dados.<br>2. O pedido nasce <b>pendente</b> e não bloqueia a agenda.<br>3. Ao <b>confirmar</b>, o intervalo (início + duração em min) fica ocupado em tempo real.<br>4. Pedidos pendentes que começam dentro do horário confirmado são recusados na hora.<br>5. Nenhum serviço é bloqueado pela duração: o cliente escolhe qualquer horário livre e a empresa decide ao confirmar.<br>6. Admin cria e redefine o acesso da empresa; a empresa não troca a senha.<br>7. O pagamento é no local, na hora. Cada empresa marca no Perfil quais formas aceita (dinheiro, Pix, débito, crédito) e o cliente escolhe uma ao agendar.<br>8. Existe um único login. O sistema reconhece o e-mail: o administrador vê o botão ADM, a empresa vê Minha empresa e o cliente comum não vê nenhum botão extra. Sem login, nada disso aparece.<br>9. Cada profissional tem os próprios horários, folgas e agenda. O cliente escolhe o profissional antes de ver os horários.</div>`}
 
 /* ===== RENDER ===== */
-function R_(){let r=S.role;
+function R_(){autosave();let r=S.role;
  if((r==="dono"&&!S.own)||(r==="admin"&&!S.adm)){S.role=r="cliente";S.v=S.user?"home":"login";S.tab="in"}
  const bt=(l,x,on)=>`<button ${x} class="${on?"on":""}">${l}</button>`;
  $("#roles").innerHTML=S.user?(S.adm?bt("ADM",'data-a="role" data-r="admin"',r==="admin"):"")+(S.own?bt("Minha empresa",'data-a="role" data-r="dono"',r==="dono"):"")+(r==="dono"||r==="admin"||r==="mapa"?bt("Site",'data-a="role" data-r="cliente"'):"")+bt("Sair",'data-a="logout"'):bt("Entrar",'data-a="v" data-v="login"');
  let h="",n="";
  if(r==="cliente"){h={home:vHome,shop:vShop,book:vBook,mine:vMine,login:vLogin}[S.v]();
   n=[["home","Início"],["mine","Agendamentos"]].map(x=>`<button data-a="v" data-v="${x[0]}" class="${S.v===x[0]||(x[0]==="home"&&(S.v==="shop"||S.v==="book"))?"on":""}">${x[1]}</button>`).join("")}
- if(r==="dono")h=vOwner();if(r==="admin")h=vAdmin();if(r==="mapa")h=vMapa();
+ if(r==="dono")h=S.own&&!me()?'<p class="em">Carregando…</p>':vOwner();if(r==="admin")h=vAdmin();if(r==="mapa")h=vMapa();
  $("#app").className="wrap"+(r==="cliente"&&S.v==="home"?" wide":"");$("#app").innerHTML=h;$("#nav").innerHTML=n?`<div>${n}</div>`:"";$("#nav").style.display=n?"block":"none"}
 const go=f=>{S.err="";f&&f();R_()};
 const nx=id=>setTimeout(()=>{const e=$("#"+id);if(e&&e.scrollIntoView)e.scrollIntoView({behavior:"smooth",block:"start"})},60);
 const wof=k=>{const m=new Date();m.setHours(12,0,0,0);m.setDate(m.getDate()-(m.getDay()+6)%7);const q=k.split("-"),d=new Date(+q[0],q[1]-1,+q[2],12);return Math.floor(Math.round((d-m)/864e5)/7)};
 const pr_=(s,id)=>s.pr.find(p=>p.id===id)||s.pr[0];
-const PV=(s,id)=>{const p=pr_(s,id);return Object.assign({},p,{ag:s.ag.filter(a=>a.pid===p.id)})};
+const PV=(s,id)=>{const p=pr_(s,id);return Object.assign({},p,{ag:BZ.filter(a=>a.shopId===s.id&&a.pid===p.id)})};
 const pth=p=>`<div class="th" style="${p.foto?`background-image:url('${E(p.foto)}')`:""}">${p.foto?"":E(p.n[0])}</div>`;
 const wa=a=>{let n=String(a.tel||"").replace(/\D/g,"");if(n.length<=11)n="55"+n;const w=a.sv+(a.pn?" com "+a.pn:"")+", dia "+a.d.split("-").reverse().slice(0,2).join("/")+" às "+hm(a.h),m=a.st==="confirmado"?"Olá, "+a.nome+"! Seu agendamento está confirmado: "+w+". Até lá!":a.st==="recusado"||a.st==="cancelado"?"Olá, "+a.nome+"! Não foi possível atender o pedido de "+w+". Quer escolher outro horário?":"Olá, "+a.nome+"! Recebemos seu pedido: "+w+". Já vamos confirmar.";return"https://wa.me/"+n+"?text="+encodeURIComponent(m)};
 const firstDay=()=>{const sp=sh(S.shop),P=PV(sp,S.B.p);let k=0;while(k<27&&!slots(P,dk(add(k))).some(m=>fits(P,dk(add(k)),m)))k++;S.B.d=dk(add(k));S.B.h=null;S.wk=wof(S.B.d)};
 const perfilAviso=s=>{const f=[];if(!s.capa)f.push("banner");if(!s.logo)f.push("logo");if(s.pr.some(p=>!p.foto))f.push("foto de cada profissional");return f.length?`<div class="cd"><b>Complete seu perfil</b><div class="mu">Falta enviar: ${f.join(", ")}. Fotos reais fazem mais clientes agendarem.</div><button class="bt s m" style="margin-top:10px" data-a="ot" data-t="eq">Enviar fotos</button></div>`:""};
+const fb=initializeApp(FBC),auth=getAuth(fb),db=getFirestore(fb),app2=initializeApp(FBC,"sec");
+let UNS=[],LI=null,PP=null,PEND=0;
+const fm=e=>({"auth/invalid-credential":"E-mail ou senha incorretos.","auth/wrong-password":"E-mail ou senha incorretos.","auth/user-not-found":"E-mail ou senha incorretos.","auth/invalid-email":"E-mail inválido.","auth/email-already-in-use":"Este e-mail já tem conta. Use a aba Entrar.","auth/weak-password":"A senha precisa de 6 ou mais caracteres.","auth/too-many-requests":"Muitas tentativas. Aguarde um pouco e tente de novo.","auth/network-request-failed":"Sem conexão. Tente de novo."}[e&&e.code]||"Não foi possível concluir. Tente de novo.");
+const pub=s=>{const o={};for(const k in s)if(k!=="ag"&&k!=="dono"&&k!=="_j")o[k]=s[k];return o};
+const ty=()=>/INPUT|SELECT|TEXTAREA/.test((document.activeElement||{}).tagName||"");
+const rr=()=>{if(ty())PEND=1;else R_()};addEventListener("focusout",()=>{if(PEND)setTimeout(()=>{if(!ty()){PEND=0;R_()}},60)});
+const dist=()=>DB.shops.forEach(s=>s.ag=AG.filter(a=>a.shopId===s.id));
+const autosave=()=>{if(!S.own||!S.user)return;const s=me();if(!s)return;const j=JSON.stringify(pub(s));if(j!==s._j){s._j=j;setDoc(doc(db,"shops",String(s.id)),JSON.parse(j)).catch(()=>tip("Não foi possível salvar. Verifique a conexão."))}};
+const saveGeo=()=>setDoc(doc(db,"config","geo"),JSON.parse(JSON.stringify({est:DB.est,cid:DB.cid,hero:DB.hero||null}))).catch(()=>tip("Não foi possível salvar."));
+const fromDoc=(id,d)=>{const s=Object.assign({},d);s.id=+id;s.dono={nome:d.ownerNome||"",email:d.ownerEmail||""};s.n=d.n||"Empresa";s.tp=PAL[d.tp]?d.tp:"Estúdio";s.uf=d.uf||"SP";s.cd=d.cd||"";s.end=d.end||"";s.abre=d.abre||"09:00";s.fecha=d.fecha||"18:00";s.dias=d.dias||[1,2,3,4,5,6];s.sv=d.sv||[];s.pg=d.pg&&d.pg.length?d.pg:["Dinheiro","Pix"];s.av=d.av||[0,0];
+ s.pr=d.pr&&d.pr.length?d.pr:[{id:+id+1,n:d.ownerNome||"Profissional",abre:s.abre,almI:d.almI||"",almF:d.almF||"",fecha:s.fecha,dias:s.dias,folgas:[]}];s.pr.forEach(p=>{p.folgas=p.folgas||[];p.dias=p.dias||s.dias});s.ag=[];s._j=JSON.stringify(pub(s));return s};
+let E0=+new URLSearchParams(location.search).get("e")||0;
+onSnapshot(collection(db,"shops"),q=>{DB.shops=q.docs.map(x=>fromDoc(x.id,x.data()));dist();if(E0&&sh(E0)){S.shop=E0;S.v="shop";S.role="cliente";E0=0}rr()},()=>{});
+onSnapshot(query(collection(db,"busy"),where("d",">=",T)),q=>{BZ=q.docs.map(x=>{const b=x.data();return{id:x.id,shopId:+b.shopId,pid:+b.pid,d:b.d,h:b.h,m:b.m,st:"confirmado"}});rr()},()=>{});
+onSnapshot(doc(db,"config","geo"),x=>{if(x.exists()){const g=x.data();if(g.est)DB.est=g.est;if(g.cid)DB.cid=g.cid;if(g.hero)DB.hero=g.hero}rr()},()=>{});
+const agsnap=q=>{AG=q.docs.map(x=>Object.assign({},x.data(),{id:+x.id,shopId:+x.data().shopId}));dist();rr()};
+onAuthStateChanged(auth,async u=>{UNS.forEach(f=>f());UNS=[];AG=[];dist();
+ if(!u){S.user=null;S.adm=false;S.own=null;return R_()}
+ let p=null;for(let i=0;i<4&&!p;i++){try{const x=await getDoc(doc(db,"users",u.uid));if(x.exists())p=x.data()}catch(e){}if(!p&&PP&&PP.email===u.email)p=PP;if(!p)await new Promise(r=>setTimeout(r,600))}
+ p=p||{nome:(u.email||"").split("@")[0],email:u.email,tel:"",role:"cliente"};const it=LI;LI=null;
+ if((it==="ologin"&&p.role!=="dono")||(it==="alogin"&&p.role!=="admin")){S.err="Esta conta não tem acesso a esta área.";await signOut(auth);return R_()}
+ S.user={uid:u.uid,nome:p.nome||"",email:u.email,tel:p.tel||""};S.adm=p.role==="admin";S.own=p.role==="dono"?+p.shopId:null;
+ if(it){S.role=it==="ologin"?"dono":it==="alogin"?"admin":"cliente";if(S.role==="cliente"){S.v=S.ret||"home";S.ret=null}S.ot="agenda";S.err="";tip("Bem-vindo, "+S.user.nome)}
+ if(p.role==="admin")UNS.push(onSnapshot(collection(db,"ag"),agsnap,()=>{}));
+ else if(p.role==="dono")UNS.push(onSnapshot(query(collection(db,"ag"),where("shopId","==",String(p.shopId))),agsnap,()=>{}));
+ else UNS.push(onSnapshot(query(collection(db,"ag"),where("u","==",u.uid)),agsnap,()=>{}));
+ R_()});
+const doLogin=async(a,m,p)=>{if(!m||!p)return go(()=>{S.err="Informe e-mail e senha."});LI=a;S.err="";try{await signInWithEmailAndPassword(auth,m,p)}catch(e){LI=null;S.err=fm(e);R_()}};
+const mkShop=async g=>{const id=Date.now(),em=g.de.toLowerCase(),nm=g.dn||"Responsável";let uid;
+ try{const a2=getAuth(app2),c=await createUserWithEmailAndPassword(a2,em,g.dp);uid=c.user.uid;await signOut(a2)}catch(e){S.err=fm(e);return R_()}
+ const pr={id:id+1,n:nm,abre:"09:00",almI:"12:00",almF:"13:00",fecha:"18:00",dias:[1,2,3,4,5,6],folgas:[]};
+ const sp={id,n:g.n,end:g.ce,uf:g.u,cd:g.c,tp:g.t,abre:"09:00",almI:"12:00",almF:"13:00",fecha:"18:00",dias:[1,2,3,4,5,6],pr:[pr],pg:["Dinheiro","Pix"],av:[0,0],sv:[],ownerUid:uid,ownerEmail:em,ownerNome:nm};
+ try{await setDoc(doc(db,"users",uid),{nome:nm,email:em,role:"dono",shopId:String(id)});await setDoc(doc(db,"shops",String(id)),JSON.parse(JSON.stringify(sp)));if(!(DB.cid[g.u]||[]).includes(g.c)){(DB.cid[g.u]=DB.cid[g.u]||[]).push(g.c);saveGeo()}S.err="";tip("Empresa criada. Peça para ela enviar banner, logo e fotos da equipe.")}catch(e){S.err="O login foi criado, mas a empresa não foi salva. Confira as regras do Firestore."}R_()};
 const hit=(sv,a)=>sv.ag.find(x=>x.id===+a);
 document.addEventListener("click",e=>{const t=e.target.closest("[data-a]");if(!t)return;const d=t.dataset,a=d.a;
  if(a==="role")return go(()=>{S.role=d.r});
  if(a==="v")return go(()=>{S.role="cliente";S.v=d.v});
- if(a==="nohero")return go(()=>{DB.hero=null});
+ if(a==="nohero")return go(()=>{DB.hero=null;saveGeo()});
  if(a==="pg")return go(()=>{const s=me();s.pg=s.pg||[];if(s.pg.includes(d.m)){if(s.pg.length>1)s.pg=s.pg.filter(x=>x!==d.m);else tip("Mantenha ao menos uma forma de pagamento")}else s.pg=PG.filter(x=>x===d.m||s.pg.includes(x))});
  if(a==="wk")return go(()=>{if(d.k==="od")S.owk=Math.max(-4,Math.min(4,S.owk+ +d.w));else S.wk=Math.max(0,Math.min(3,S.wk+ +d.w))});
  if(a==="tp")return go(()=>{S.tp=S.tp===d.t?"":d.t});
@@ -257,24 +293,28 @@ document.addEventListener("click",e=>{const t=e.target.closest("[data-a]");if(!t
  if(a==="bp"){go(()=>{S.B.p=+d.id;firstDay()});return nx("p2")}
  if(a==="send"){if(!S.user)return go(()=>{S.ret="book";S.tab="in";S.v="login";tip("Entre ou crie sua conta para agendar")});const n=$("#bn").value.trim(),tl=$("#bt").value.trim();if(!n||!tl)return go(()=>{S.err="Preencha nome e WhatsApp."});
   const s=sh(S.shop),x=s.sv.find(v=>v.id===S.B.s);if(!fits(PV(s,S.B.p),S.B.d,S.B.h))return go(()=>{S.err="Esse horário acabou de ficar indisponível.";S.B.h=null});
-  s.ag.push({id:++seq,u:S.user.email,nome:n,tel:tl,sv:x.n,p:x.p,m:x.m,d:S.B.d,h:S.B.h,pid:S.B.p,pn:pr_(s,S.B.p).n,st:"pendente",pg:$("#bp")?$("#bp").value:""});return go(()=>{S.v="mine";tip("Pedido enviado! Aguarde a confirmação.")})}
- if(a==="login"){const m=$("#le").value.trim().toLowerCase(),p=$("#ls").value,ad=m===ADM.email&&p===ADM.senha,sp=DB.shops.find(x=>x.dono.email.toLowerCase()===m&&x.dono.senha===p),u=DB.users.find(x=>x.email===m&&x.senha===p);
-  if(!ad&&!sp&&!u)return go(()=>{S.err="E-mail ou senha incorretos."});
-  return go(()=>{S.adm=ad;S.own=sp?sp.id:null;S.ot="agenda";S.user=ad?{nome:"Administrador",email:m,tel:""}:sp?{nome:sp.dono.nome,email:m,tel:""}:{nome:u.nome,email:m,tel:u.tel};S.role="cliente";S.v=S.ret||"home";S.ret=null;tip("Bem-vindo, "+S.user.nome)})}
- if(a==="signup"){const n=$("#ln").value.trim(),m=$("#le").value.trim().toLowerCase(),tl=$("#lt").value.trim(),p=$("#ls").value;
+  const id=String(Date.now()*100+Math.floor(Math.random()*100));setDoc(doc(db,"ag",id),{u:S.user.uid,ue:S.user.email,shopId:String(s.id),nome:n,tel:tl,sv:x.n,p:x.p,m:x.m,d:S.B.d,h:S.B.h,pid:S.B.p,pn:pr_(s,S.B.p).n,st:"pendente",pg:$("#bp")?$("#bp").value:""}).catch(()=>tip("Não foi possível enviar o pedido. Tente de novo."));
+  return go(()=>{S.v="mine";tip("Pedido enviado! Aguarde a confirmação.")})}
+ if(a==="login"){doLogin("login",$("#le").value.trim().toLowerCase(),$("#ls").value.trim());return}
+ if(a==="signup"){const n=$("#ln").value.trim(),m=$("#le").value.trim().toLowerCase(),tl=$("#lt").value.trim(),p=$("#ls").value.trim();
   if(!n||!/^\S+@\S+\.\S+$/.test(m)||p.length<6)return go(()=>{S.err="Informe nome, e-mail válido e senha com 6 ou mais caracteres."});
-  if(m===ADM.email||DB.users.some(x=>x.email===m)||DB.shops.some(x=>x.dono.email.toLowerCase()===m))return go(()=>{S.err="Este e-mail já tem conta. Use a aba Entrar."});
-  DB.users.push({nome:n,email:m,tel:tl,senha:p});return go(()=>{S.user={nome:n,email:m,tel:tl};S.role="cliente";S.v=S.ret||"home";S.ret=null;tip("Conta criada, "+n)})}
+  PP={nome:n,email:m,tel:tl,role:"cliente"};LI="signup";S.err="";createUserWithEmailAndPassword(auth,m,p).then(c=>setDoc(doc(db,"users",c.user.uid),PP)).catch(e=>{LI=null;S.err=fm(e);R_()});return}
  if(a==="tab")return go(()=>{S.tab=d.t});
- if(a==="logout")return go(()=>{S.user=null;S.adm=false;S.own=null;S.role="cliente";S.v="home";S.ret=null;S.B={d:null,h:null,s:null};tip("Você saiu da conta")});
- if(a==="cx")return go(()=>{hit(sh(+d.s),d.id).st="cancelado";tip("Agendamento cancelado")});
- if(a==="rate"){const v=+prompt("Nota de 1 a 5");if(v>=1&&v<=5)go(()=>{const s=sh(+d.s);s.av[0]+=v;s.av[1]++;hit(s,d.id).avl=1;tip("Obrigado pela avaliação!")});return}
- if(a==="ologin"){const m=$("#oe").value.trim().toLowerCase(),p=$("#os").value,s=DB.shops.find(x=>x.dono.email.toLowerCase()===m&&x.dono.senha===p);return go(()=>{if(s){S.own=s.id;S.ot="agenda"}else S.err="E-mail ou senha incorretos."})}
- if(a==="ologout")return go(()=>{S.own=null});
+ if(a==="forgot"){const m=(($("#le")||$("#oe")||$("#ae")||{}).value||"").trim().toLowerCase();if(!m)return go(()=>{S.err="Digite seu e-mail e toque em Esqueci minha senha."});sendPasswordResetEmail(auth,m).then(()=>tip("Se o e-mail existir, enviamos o link para criar uma nova senha.")).catch(e=>tip(fm(e)));return}
+ if(a==="logout"||a==="ologout"||a==="alogout"){signOut(auth).catch(()=>{});return go(()=>{S.user=null;S.adm=false;S.own=null;S.role="cliente";S.v="home";S.ret=null;S.B={d:null,h:null,s:null};tip("Você saiu da conta")})}
+ if(a==="cx"){const g=hit(sh(+d.s),d.id),b=writeBatch(db);b.update(doc(db,"ag",String(d.id)),{st:"cancelado"});if(g&&g.st==="confirmado")b.delete(doc(db,"busy",String(d.id)));b.commit().then(()=>tip("Agendamento cancelado")).catch(()=>tip("Não foi possível cancelar."));return}
+ if(a==="rate"){const v=Math.round(+prompt("Nota de 1 a 5"));if(!(v>=1&&v<=5))return;const s=sh(+d.s),id=String(d.id),b=writeBatch(db);
+  b.set(doc(db,"ratings",id),{u:S.user.uid,shopId:String(s.id),v});b.update(doc(db,"shops",String(s.id)),{av:[s.av[0]+v,s.av[1]+1],rid:id});b.update(doc(db,"ag",id),{avl:true});
+  b.commit().then(()=>tip("Obrigado pela avaliação!")).catch(()=>tip("Não foi possível enviar a avaliação."));return}
+ if(a==="ologin"){doLogin("ologin",$("#oe").value.trim().toLowerCase(),$("#os").value.trim());return}
  if(a==="ot")return go(()=>{S.ot=d.t;S.pro=null});
  if(a==="od")return go(()=>{S.od=d.d});
- if(a==="ok")return go(()=>{const s=me(),x=hit(s,d.id);if(!fits(PV(s,x.pid),x.d,x.h)){x.st="recusado";tip("Horário já ocupado: pedido recusado");return}x.st="confirmado";let c=0;s.ag.forEach(o=>{if(o.st==="pendente"&&o.d===x.d&&o.pid===x.pid&&o.h>=x.h&&o.h<x.h+x.m){o.st="recusado";c++}});tip("Confirmado! Horário bloqueado na agenda"+(c?` (${c} pedido(s) em conflito recusado(s))`:""))});
- if(a==="no")return go(()=>{hit(me(),d.id).st="recusado";tip("Pedido recusado")});
+ if(a==="ok"){const s=me(),x=hit(s,d.id),b=writeBatch(db),rf=i=>doc(db,"ag",String(i));
+  if(!fits(PV(s,x.pid),x.d,x.h)){b.update(rf(x.id),{st:"recusado"});b.commit().catch(()=>{});return go(()=>tip("Horário já ocupado: pedido recusado"))}
+  b.update(rf(x.id),{st:"confirmado"});b.set(doc(db,"busy",String(x.id)),{shopId:String(s.id),pid:x.pid,d:x.d,h:x.h,m:x.m,u:x.u});let c=0;
+  s.ag.forEach(o=>{if(o.st==="pendente"&&o.id!==x.id&&o.d===x.d&&o.pid===x.pid&&o.h>=x.h&&o.h<x.h+x.m){b.update(rf(o.id),{st:"recusado"});c++}});
+  b.commit().catch(()=>tip("Não foi possível confirmar. Tente de novo."));return go(()=>tip("Confirmado! Horário bloqueado na agenda"+(c?` (${c} pedido(s) em conflito recusado(s))`:"")))}
+ if(a==="no"){updateDoc(doc(db,"ag",String(d.id)),{st:"recusado"}).catch(()=>tip("Não foi possível recusar."));return go(()=>tip("Pedido recusado"))}
  if(a==="addsv"){const s=me(),n=$("#sn").value.trim(),p=parseFloat($("#sp").value.replace(",",".")),m=parseInt($("#sm").value);return go(()=>{if(!n||!(p>=0)||!(m>0))S.err="Informe nome, valor e duração em minutos.";else{s.sv.push({id:++seq,n,p,m,img:S.tmp});S.tmp=null;tip("Serviço adicionado")}})}
  if(a==="delsv")return go(()=>{const s=me();s.sv=s.sv.filter(x=>x.id!==+d.id)});
  if(a==="pdia")return go(()=>{const p=me().pr.find(z=>z.id===S.pro),i=+d.i;p.dias=p.dias.includes(i)?p.dias.filter(x=>x!==i):[...p.dias,i].sort()});
@@ -288,21 +328,20 @@ document.addEventListener("click",e=>{const t=e.target.closest("[data-a]");if(!t
  if(a==="delfolga")return go(()=>{const p=me().pr.find(z=>z.id===S.pro);p.folgas=p.folgas.filter(x=>x!==d.d)});
  if(a==="install"){if(IP){IP.prompt();IP=null}return R_()}
  if(a==="cplk"){const i=$("#lk");i.select();try{navigator.clipboard.writeText(i.value)}catch(x){document.execCommand("copy")}tip("Link copiado");return}
- if(a==="alogin"){return go(()=>{if($("#ae").value.trim().toLowerCase()==="admin@agendabarba.com"&&$("#as").value==="admin123")S.adm=true;else S.err="E-mail ou senha incorretos."})}
- if(a==="alogout")return go(()=>{S.adm=false});
+ if(a==="alogin"){doLogin("alogin",$("#ae").value.trim().toLowerCase(),$("#as").value.trim());return}
  if(a==="at")return go(()=>{S.at=d.t});
- if(a==="uf")return go(()=>{DB.est[d.u]=!DB.est[d.u]});
- if(a==="pw"){const p=prompt("Nova senha para a empresa:");if(p)go(()=>{sh(+d.id).dono.senha=p;tip("Senha redefinida")});return}
- if(a==="rm"){if(confirm("Excluir esta empresa?"))go(()=>{DB.shops=DB.shops.filter(s=>s.id!==+d.id)});return}
+ if(a==="uf")return go(()=>{DB.est[d.u]=!DB.est[d.u];saveGeo()});
+ if(a==="pw"){sendPasswordResetEmail(auth,sh(+d.id).dono.email).then(()=>tip("E-mail para criar nova senha enviado à empresa")).catch(e=>tip(fm(e)));return}
+ if(a==="rm"){if(confirm("Excluir esta empresa?")){const s=sh(+d.id);deleteDoc(doc(db,"shops",String(s.id))).catch(()=>tip("Não foi possível excluir."));if(s.ownerUid)deleteDoc(doc(db,"users",s.ownerUid)).catch(()=>{})}return}
  if(a==="mk"){const g=i=>$("#"+i).value.trim(),n=g("cn"),u=$("#cu").value,c=g("cc");if(!n||!c||!g("de")||!g("dp"))return go(()=>{S.err="Preencha nome, cidade, e-mail e senha inicial."});
-  return go(()=>{if(!DB.cid[u].includes(c))DB.cid[u].push(c);DB.shops.push({id:++seq,n,pr:[{id:++seq,n:g("dn")||"Profissional",abre:"09:00",almI:"12:00",almF:"13:00",fecha:"18:00",dias:[1,2,3,4,5,6],folgas:[]}],end:g("ce"),uf:u,cd:c,tp:$("#ct").value,abre:"09:00",almI:"12:00",almF:"13:00",fecha:"18:00",dias:[1,2,3,4,5,6],pg:["Dinheiro","Pix"],av:[0,0],dono:{nome:g("dn"),email:g("de"),senha:g("dp")},sv:[],ag:[]});tip("Empresa criada. Peça para ela enviar banner, logo e fotos da equipe.")})}
+  if(g("dp").length<6)return go(()=>{S.err="A senha inicial precisa de 6 ou mais caracteres."});
+  mkShop({n,u,c,t:$("#ct").value,ce:g("ce"),de:g("de"),dp:g("dp"),dn:g("dn")});return}
  if(a==="jump")return go(()=>{S.role=d.r;if(d.r==="cliente")S.v=d.v==="book"?"shop":d.v;if(d.r==="cliente"&&!S.shop)S.shop=1})});
 document.addEventListener("change",e=>{const t=e.target,k=t.dataset.s,h=t.dataset.h,f=t.dataset.f;
- if(f&&t.files&&t.files[0]){shrink(t.files[0],u=>{const s=me();if(f==="sv"){S.tmp=u;tip("Foto pronta. Toque em Adicionar serviço.")}if(f==="pf"){S.tmp=u;tip("Foto pronta. Toque em Adicionar profissional.")}if(f==="pfe"){s.pr.find(z=>z.id===S.pro).foto=u;go()}if(f==="capa"){s.capa=u;go()}if(f==="logo"){s.logo=u;go()}if(f==="hero"){DB.hero=u;go()}if(f==="gal"){(s.gal=s.gal||[]).push(u);go()}});return}
+ if(f&&t.files&&t.files[0]){shrink(t.files[0],u=>{const s=me();if(f==="sv"){S.tmp=u;tip("Foto pronta. Toque em Adicionar serviço.")}if(f==="pf"){S.tmp=u;tip("Foto pronta. Toque em Adicionar profissional.")}if(f==="pfe"){s.pr.find(z=>z.id===S.pro).foto=u;go()}if(f==="capa"){s.capa=u;go()}if(f==="logo"){s.logo=u;go()}if(f==="hero"){DB.hero=u;saveGeo();go()}if(f==="gal"){(s.gal=s.gal||[]).push(u);go()}});return}
  if(k){S[k]=t.value;if(k==="uf")S.cid="";R_();return}
  const hp=t.dataset.hp;if(hp){const p=me().pr.find(z=>z.id===S.pro),o=p[hp];p[hp]=t.value;const ok=p.abre&&p.fecha&&tm(p.abre)<tm(p.fecha)&&(!p.almI||!p.almF||(tm(p.abre)<tm(p.almI)&&tm(p.almI)<=tm(p.almF)&&tm(p.almF)<tm(p.fecha)));if(!ok){p[hp]=o;tip("Horário inválido: confira abre, almoço e fecha")}else tip("Horário salvo");R_()}});
 (()=>{const i=new Image();i.onload=()=>{if(!DB.hero){DB.hero="assets/banner.jpg";if(S.role==="cliente"&&S.v==="home")R_()}};i.src="assets/banner.jpg"})();
-{const e=+new URLSearchParams(location.search).get("e");if(e&&sh(e)){S.shop=e;S.v="shop"}}
 addEventListener("beforeinstallprompt",e=>{e.preventDefault();IP=e;if(S.role==="cliente"&&S.v==="home")R_()});
 if("serviceWorker"in navigator&&location.protocol.startsWith("http"))addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
 R_();
