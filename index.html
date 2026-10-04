@@ -63,6 +63,9 @@ label{display:block;color:var(--mu);font:600 11px var(--m);letter-spacing:.1em;t
 .hero ol{list-style:none;padding-left:0;counter-reset:n;display:flex;gap:6px 20px;flex-wrap:wrap;border-top:1px solid #ffffff55;padding-top:12px;font:500 12px var(--m)}
 .hero li::before{counter-increment:n;content:"0" counter(n) "  ";opacity:.65}
 .hb{display:block;width:100%;height:auto;border-radius:6px;margin-top:18px}
+.car{position:relative;margin-top:18px;border-radius:6px;overflow:hidden;background:#111}.trk{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch}.trk::-webkit-scrollbar{display:none}.trk img{flex:0 0 100%;width:100%;aspect-ratio:5/2;object-fit:cover;scroll-snap-align:center;display:block}
+.dots{position:absolute;left:0;right:0;bottom:8px;display:flex;justify-content:center;gap:6px;pointer-events:none}.dots i{width:7px;height:7px;border-radius:50%;background:#ffffff66}.dots i.on{background:#fff}
+.bnr{display:flex;gap:10px;align-items:center}.bnr img{width:120px;aspect-ratio:5/2;object-fit:cover;border-radius:4px;border:1px solid var(--bd);flex:none}
 .cats{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:16px}
 .cats button{background:none;border:1px solid var(--bd);border-radius:4px;padding:12px 0;font:600 9.5px var(--m);letter-spacing:.06em;text-transform:uppercase;display:grid;justify-items:center;gap:8px;min-height:64px}
 .cats svg,.th svg,.gal svg{stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}.cats svg{width:22px;height:22px}
@@ -102,7 +105,7 @@ const add=n=>{const d=new Date();d.setDate(d.getDate()+n);return d};
 const PG=["Dinheiro","Pix","Débito","Crédito"],DS=["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"],TIPOS=["Barbearia","Salão","Manicure","Maquiagem","Estúdio"];
 const wd=k=>{const p=k.split("-");return new Date(+p[0],p[1]-1,+p[2]).getDay()};
 let seq=Date.now(),IP=null,BZ=[],AG=[];const T=dk(add(0)),T2=dk(add(2));
-const DB={est:{SP:true,RJ:true,MG:false},cid:{SP:["São Paulo","Campinas"],RJ:["Rio de Janeiro"],MG:["Belo Horizonte"]},shops:[],hero:null};
+const DB={est:{SP:true,RJ:true,MG:false},cid:{SP:["São Paulo","Campinas"],RJ:["Rio de Janeiro"],MG:["Belo Horizonte"]},shops:[],banners:[]};
 const S={role:"cliente",pro:null,op:null,tab:"in",wk:0,owk:0,tp:"",tmp:null,v:"home",uf:"",cid:"",q:"",shop:null,B:{d:null,h:null,s:null},user:null,own:null,adm:false,od:T,ot:"agenda",at:"shops",ret:null,err:""};
 const sh=id=>DB.shops.find(s=>s.id===id),me=()=>sh(S.own);
 const periods=s=>s.almI&&s.almF&&tm(s.almI)>tm(s.abre)&&tm(s.almF)>=tm(s.almI)&&tm(s.fecha)>tm(s.almF)?[[tm(s.abre),tm(s.almI)],[tm(s.almF),tm(s.fecha)]]:[[tm(s.abre),tm(s.fecha)]];
@@ -137,7 +140,7 @@ const shrink=async(f,cb)=>{try{tip("Enviando foto…");const img=await new Promi
 function card(s){return`<div class="cd l" data-a="shop" data-id="${s.id}" style="padding:0;overflow:hidden">${cover(s,150)}<div class="id" style="padding:14px;margin:0">${av(s,52)}<div style="min-width:0;flex:1"><b style="font:800 16px var(--f);font-stretch:112%;text-transform:uppercase">${E(s.n)}</b><div class="mu">${E(s.end)} · ${E(s.cd)}/${s.uf}</div><div class="rw" style="margin-top:6px"><span style="font:600 12px var(--m)">★ ${nota(s)} <span class="mu">(${s.av[1]})</span></span><span class="mu" style="font:500 12px var(--m)">${s.sv.length} serviços</span></div></div></div></div>`}
 function vHome(){const ufs=Object.keys(DB.est).filter(u=>DB.est[u]);
  const L=DB.shops.filter(s=>(!S.uf||s.uf===S.uf)&&(!S.cid||s.cd===S.cid)&&(!S.tp||s.tp===S.tp)&&s.n.toLowerCase().includes(S.q.toLowerCase()));
- const hero=DB.hero?`<img class="hb" src="${DB.hero}" alt="Agenda Barba">`:`<div class="hero"><small>Agendamento online</small><h1>Seu horário.<br>Sem fila.</h1><ol><li>Escolha o serviço</li><li>Dia e horário</li><li>Confirme</li></ol></div>`;
+ const hero=DB.banners.length?`<div class="car" id="car"><div class="trk">${DB.banners.map((u,i)=>`<img src="${E(u)}" alt="Banner ${i+1}" ${i?'loading="lazy"':""}>`).join("")}</div>${DB.banners.length>1?`<div class="dots">${DB.banners.map((u,i)=>`<i class="${i?"":"on"}"></i>`).join("")}</div>`:""}</div>`:`<div class="hero"><small>Agendamento online</small><h1>Seu horário.<br>Sem fila.</h1><ol><li>Escolha o serviço</li><li>Dia e horário</li><li>Confirme</li></ol></div>`;
  return`${hero}
  <div class="cats">${TIPOS.map(t=>`<button data-a="tp" data-t="${t}" class="${S.tp===t?"on":""}">${svg(t)}${t}</button>`).join("")}</div>
  <div class="f"><select data-s="uf" aria-label="Estado"><option value="">Estado</option>${ufs.map(u=>`<option ${u===S.uf?"selected":""}>${u}</option>`).join("")}</select>
@@ -204,7 +207,7 @@ function vOwner(){if(!S.own)return loginBox("Área da empresa","Acesso criado pe
 /* ===== ADMIN ===== */
 function vAdmin(){if(!S.adm)return loginBox("Administrador","Você cria o perfil e o login de cada empresa.","a");
  const tabs=`<div class="fl" style="margin-top:14px">${[["shops","Empresas"],["hero","Banner"],["ufs","Estados"]].map(t=>`<button data-a="at" data-t="${t[0]}" style="${S.at===t[0]?"background:var(--b);border-color:var(--b)":""}">${t[1]}</button>`).join("")}<span style="flex:1"></span><button data-a="role" data-r="cliente">Ver site</button></div>`;
- if(S.at==="hero")return`<h1>Banner da tela inicial</h1>${tabs}<p class="mu">Esta imagem substitui o texto "Seu horário, sem fila" no topo da home. Escreva o texto direto na imagem: ela aparece inteira, sem cortes. Use uma imagem larga, por exemplo 1200 x 480 px. No site publicado, salve o arquivo como assets/banner.jpg no repositório (veja o LEIA-ME); o envio abaixo serve de pré-visualização.</p>${DB.hero?`<img class="hb" src="${DB.hero}" alt="Banner">`:'<div class="cd mu">Nenhum banner enviado. A home mostra o texto padrão.</div>'}<label>Enviar banner<input type="file" accept="image/*" data-f="hero"></label>${DB.hero?'<button class="bt s" data-a="nohero">Remover banner</button>':""}`;
+ if(S.at==="hero")return`<h1>Banners da tela inicial</h1>${tabs}<p class="mu">Envie até 8 banners. Eles passam sozinhos na tela inicial, e o cliente também pode arrastar. Use imagens largas, por exemplo 1200 x 480 px, com o texto escrito dentro da imagem.</p>${DB.banners.length?DB.banners.map((u,i)=>`<div class="cd bnr"><img src="${E(u)}" alt=""><div style="flex:1;min-width:0"><b>Banner ${i+1}</b><div class="fl">${i?`<button data-a="bnup" data-i="${i}">Subir</button>`:""}<button data-a="bnrm" data-i="${i}">Remover</button></div></div></div>`).join(""):'<div class="cd mu">Nenhum banner enviado. A home mostra o texto padrão.</div>'}<label>Adicionar banners (pode escolher vários)<input type="file" accept="image/*" multiple data-f="hero"></label>`;
  if(S.at==="ufs")return`<h1>Estados ativos</h1>${tabs}<p class="mu">Só os estados marcados aparecem no filtro do cliente.</p>${Object.keys(DB.est).map(u=>`<div class="cd rw"><b>${u}</b><button class="bt m ${DB.est[u]?"g":"s"}" data-a="uf" data-u="${u}">${DB.est[u]?"Ativo":"Inativo"}</button></div>`).join("")}`;
  const tot=DB.shops.reduce((t,s)=>t+s.ag.length,0);
  return`<h1>Painel do administrador</h1>${tabs}<div class="kp" style="margin-top:12px"><div class="cd"><b>${DB.shops.length}</b><span class="mu">empresas</span></div><div class="cd"><b>${tot}</b><span class="mu">agendamentos</span></div></div>
@@ -242,13 +245,13 @@ const ty=()=>/INPUT|SELECT|TEXTAREA/.test((document.activeElement||{}).tagName||
 const rr=()=>{if(ty())PEND=1;else R_()};addEventListener("focusout",()=>{if(PEND)setTimeout(()=>{if(!ty()){PEND=0;R_()}},60)});
 const dist=()=>DB.shops.forEach(s=>s.ag=AG.filter(a=>a.shopId===s.id));
 const autosave=()=>{if(!S.own||!S.user)return;const s=me();if(!s)return;const j=JSON.stringify(pub(s));if(j!==s._j){s._j=j;setDoc(doc(db,"shops",String(s.id)),JSON.parse(j)).catch(()=>tip("Não foi possível salvar. Verifique a conexão."))}};
-const saveGeo=()=>setDoc(doc(db,"config","geo"),JSON.parse(JSON.stringify({est:DB.est,cid:DB.cid,hero:DB.hero||null}))).catch(()=>tip("Não foi possível salvar."));
+const saveGeo=()=>setDoc(doc(db,"config","geo"),JSON.parse(JSON.stringify({est:DB.est,cid:DB.cid,banners:DB.banners}))).catch(()=>tip("Não foi possível salvar."));
 const fromDoc=(id,d)=>{const s=Object.assign({},d);s.id=+id;s.dono={nome:d.ownerNome||"",email:d.ownerEmail||""};s.n=d.n||"Empresa";s.tp=PAL[d.tp]?d.tp:"Estúdio";s.uf=d.uf||"SP";s.cd=d.cd||"";s.end=d.end||"";s.abre=d.abre||"09:00";s.fecha=d.fecha||"18:00";s.dias=d.dias||[1,2,3,4,5,6];s.sv=d.sv||[];s.pg=d.pg&&d.pg.length?d.pg:["Dinheiro","Pix"];s.av=d.av||[0,0];
  s.pr=d.pr&&d.pr.length?d.pr:[{id:+id+1,n:d.ownerNome||"Profissional",abre:s.abre,almI:d.almI||"",almF:d.almF||"",fecha:s.fecha,dias:s.dias,folgas:[]}];s.pr.forEach(p=>{p.folgas=p.folgas||[];p.dias=p.dias||s.dias});s.ag=[];s._j=JSON.stringify(pub(s));return s};
 let E0=+new URLSearchParams(location.search).get("e")||0;
 onSnapshot(collection(db,"shops"),q=>{DB.shops=q.docs.map(x=>fromDoc(x.id,x.data()));dist();if(E0&&sh(E0)){S.shop=E0;S.v="shop";S.role="cliente";E0=0}rr()},()=>{});
 onSnapshot(query(collection(db,"busy"),where("d",">=",T)),q=>{BZ=q.docs.map(x=>{const b=x.data();return{id:x.id,shopId:+b.shopId,pid:+b.pid,d:b.d,h:b.h,m:b.m,st:"confirmado"}});rr()},()=>{});
-onSnapshot(doc(db,"config","geo"),x=>{if(x.exists()){const g=x.data();if(g.est)DB.est=g.est;if(g.cid)DB.cid=g.cid;if(g.hero)DB.hero=g.hero}rr()},()=>{});
+onSnapshot(doc(db,"config","geo"),x=>{if(x.exists()){const g=x.data();if(g.est)DB.est=g.est;if(g.cid)DB.cid=g.cid;if(g.banners)DB.banners=g.banners;else if(/^https?:/.test(g.hero||""))DB.banners=[g.hero]}rr()},()=>{});
 const agsnap=q=>{AG=q.docs.map(x=>Object.assign({},x.data(),{id:+x.id,shopId:+x.data().shopId}));dist();rr()};
 onAuthStateChanged(auth,async u=>{UNS.forEach(f=>f());UNS=[];AG=[];dist();
  if(!u){S.user=null;S.adm=false;S.own=null;return R_()}
@@ -278,7 +281,8 @@ const hit=(sv,a)=>sv.ag.find(x=>x.id===+a);
 document.addEventListener("click",e=>{const t=e.target.closest("[data-a]");if(!t)return;const d=t.dataset,a=d.a;
  if(a==="role")return go(()=>{S.role=d.r});
  if(a==="v")return go(()=>{S.role="cliente";S.v=d.v});
- if(a==="nohero")return go(()=>{DB.hero=null;saveGeo()});
+ if(a==="bnrm")return go(()=>{DB.banners.splice(+d.i,1);saveGeo()});
+ if(a==="bnup")return go(()=>{const i=+d.i;if(i>0){[DB.banners[i-1],DB.banners[i]]=[DB.banners[i],DB.banners[i-1]];saveGeo()}});
  if(a==="pg")return go(()=>{const s=me();s.pg=s.pg||[];if(s.pg.includes(d.m)){if(s.pg.length>1)s.pg=s.pg.filter(x=>x!==d.m);else tip("Mantenha ao menos uma forma de pagamento")}else s.pg=PG.filter(x=>x===d.m||s.pg.includes(x))});
  if(a==="wk")return go(()=>{if(d.k==="od")S.owk=Math.max(-4,Math.min(4,S.owk+ +d.w));else S.wk=Math.max(0,Math.min(3,S.wk+ +d.w))});
  if(a==="tp")return go(()=>{S.tp=S.tp===d.t?"":d.t});
@@ -338,10 +342,14 @@ document.addEventListener("click",e=>{const t=e.target.closest("[data-a]");if(!t
   mkShop({n,u,c,t:$("#ct").value,ce:g("ce"),de:g("de"),dp:g("dp"),dn:g("dn")});return}
 });
 document.addEventListener("change",e=>{const t=e.target,k=t.dataset.s,h=t.dataset.h,f=t.dataset.f;
- if(f&&t.files&&t.files[0]){shrink(t.files[0],u=>{const s=me();if(f==="sv"){S.tmp=u;tip("Foto pronta. Toque em Adicionar serviço.")}if(f==="pf"){S.tmp=u;tip("Foto pronta. Toque em Adicionar profissional.")}if(f==="pfe"){s.pr.find(z=>z.id===S.pro).foto=u;go()}if(f==="capa"){s.capa=u;go()}if(f==="logo"){s.logo=u;go()}if(f==="hero"){DB.hero=u;saveGeo();go()}if(f==="gal"){(s.gal=s.gal||[]).push(u);go()}});return}
+ if(f==="hero"&&t.files.length){const n=Math.max(0,8-DB.banners.length);if(!n)return tip("Limite de 8 banners. Remova um para adicionar outro.");[...t.files].slice(0,n).forEach(fl=>shrink(fl,u=>{if(DB.banners.length<8){DB.banners.push(u);saveGeo();go()}}));t.value="";return}
+ if(f&&t.files&&t.files[0]){shrink(t.files[0],u=>{const s=me();if(f==="sv"){S.tmp=u;tip("Foto pronta. Toque em Adicionar serviço.")}if(f==="pf"){S.tmp=u;tip("Foto pronta. Toque em Adicionar profissional.")}if(f==="pfe"){s.pr.find(z=>z.id===S.pro).foto=u;go()}if(f==="capa"){s.capa=u;go()}if(f==="logo"){s.logo=u;go()}if(f==="gal"){(s.gal=s.gal||[]).push(u);go()}});return}
  if(k){S[k]=t.value;if(k==="uf")S.cid="";R_();return}
  const hp=t.dataset.hp;if(hp){const p=me().pr.find(z=>z.id===S.pro),o=p[hp];p[hp]=t.value;const ok=p.abre&&p.fecha&&tm(p.abre)<tm(p.fecha)&&(!p.almI||!p.almF||(tm(p.abre)<tm(p.almI)&&tm(p.almI)<=tm(p.almF)&&tm(p.almF)<tm(p.fecha)));if(!ok){p[hp]=o;tip("Horário inválido: confira abre, almoço e fecha")}else tip("Horário salvo");R_()}});
-(()=>{const i=new Image();i.onload=()=>{if(!DB.hero){DB.hero="assets/banner.jpg";if(S.role==="cliente"&&S.v==="home")R_()}};i.src="assets/banner.jpg"})();
+let PAUSA=0;
+addEventListener("pointerdown",e=>{if(e.target.closest&&e.target.closest(".trk"))PAUSA=Date.now()+9000});
+setInterval(()=>{const t=document.querySelector("#car .trk");if(!t||document.hidden||Date.now()<PAUSA)return;const n=t.children.length,w=t.clientWidth;if(n<2||!w)return;t.scrollTo({left:((Math.round(t.scrollLeft/w)+1)%n)*w,behavior:"smooth"})},4500);
+document.addEventListener("scroll",e=>{const t=e.target;if(t&&t.classList&&t.classList.contains("trk")){const i=Math.round(t.scrollLeft/(t.clientWidth||1));t.parentNode.querySelectorAll(".dots i").forEach((x,k)=>x.classList.toggle("on",k===i))}},true);
 addEventListener("beforeinstallprompt",e=>{e.preventDefault();IP=e;if(S.role==="cliente"&&S.v==="home")R_()});
 if("serviceWorker"in navigator&&location.protocol.startsWith("http"))addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
 R_();
